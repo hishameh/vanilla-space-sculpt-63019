@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Ruler, SwitchCamera } from "lucide-react";
@@ -14,13 +13,16 @@ interface AreaStepProps {
 }
 
 const AreaStep = ({ area, areaUnit, projectType, onAreaChange, onUnitChange }: AreaStepProps) => {
+  // Use area prop as the initial value, ensuring synchronization
   const [inputValue, setInputValue] = useState(area > 0 ? area.toString() : "");
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     
+    // Allow empty string or digits only
     if (value === "" || /^\d+$/.test(value)) {
       setInputValue(value);
+      // Pass the updated number to the parent
       onAreaChange(value ? parseInt(value) : 0);
     }
   };
@@ -37,13 +39,20 @@ const AreaStep = ({ area, areaUnit, projectType, onAreaChange, onUnitChange }: A
     
     // Convert area value
     if (area > 0) {
+      let convertedArea = area; // Use a variable to store the result
+
       if (newUnit === "sqm") {
-        // Convert from sqft to sqm
-        onAreaChange(Math.round(area / 10.764));
+        // Convert from sqft to sqm (1 sqft ≈ 0.0929 sqm, so divide by 10.764)
+        convertedArea = Math.round(area / 10.764);
       } else {
         // Convert from sqm to sqft
-        onAreaChange(Math.round(area * 10.764));
+        convertedArea = Math.round(area * 10.764);
       }
+      
+      onAreaChange(convertedArea); // Update parent state with converted value
+      
+      // ✅ FIX APPLIED HERE: Synchronize local state with the converted value
+      setInputValue(convertedArea.toString());
     }
   };
 
@@ -126,6 +135,7 @@ const AreaStep = ({ area, areaUnit, projectType, onAreaChange, onUnitChange }: A
               area > 0 ? "opacity-100" : "opacity-0"
             )}
             animate={{ 
+              // Ensure the range calculation uses the maxRange correctly
               width: area > 0 ? `${Math.min((area / maxRange) * 100, 100)}%` : "0%" 
             }}
             transition={{ duration: 0.5 }}
@@ -143,8 +153,9 @@ const AreaStep = ({ area, areaUnit, projectType, onAreaChange, onUnitChange }: A
           type="range"
           min="0"
           max={maxRange}
+          // The slider value should always match the 'area' prop
           step={areaUnit === "sqft" ? "50" : "10"}
-          value={area}
+          value={area} 
           onChange={handleRangeChange}
           className="w-full h-2 bg-primary/10 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-vs"
         />
@@ -161,11 +172,13 @@ const AreaStep = ({ area, areaUnit, projectType, onAreaChange, onUnitChange }: A
               transition={{ duration: 0.3, delay: index * 0.1 }}
               className={cn(
                 "flex flex-col items-center justify-center p-4 border rounded-xl transition-all",
+                // This checks the selection status
                 area === option.value 
                   ? "border-vs bg-vs/5" 
                   : "border-primary/10 hover:bg-primary/5"
               )}
               onClick={() => {
+                // Clicking a preset updates both local and parent state
                 setInputValue(option.value.toString());
                 onAreaChange(option.value);
               }}
