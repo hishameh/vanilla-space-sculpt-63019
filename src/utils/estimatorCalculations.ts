@@ -11,18 +11,18 @@ export const calculateCosts = (estimate: ProjectEstimate) => {
   const areaInSqm = estimate.areaUnit === "sqft" ? estimate.area / 10.764 : estimate.area;
   
   const componentMultipliers: Record<string, Record<ComponentOption, number>> = {
-    'plumbing': { 'basic': 0.0, 'mid': 0.15, 'premium': 0.35, 'none': 0, '': 0 },
-    'ac': { 'basic': 0.0, 'mid': 0.2, 'premium': 0.5, 'none': 0, '': 0 },
-    'electrical': { 'basic': 0.0, 'mid': 0.15, 'premium': 0.4, 'none': 0, '': 0 },
-    'elevator': { 'basic': 0.0, 'mid': 0.25, 'premium': 0.6, 'none': 0, '': 0 },
-    'lighting': { 'basic': 0.0, 'mid': 0.2, 'premium': 0.5, 'none': 0, '': 0 },
-    'windows': { 'basic': 0.0, 'mid': 0.25, 'premium': 0.6, 'none': 0, '': 0 },
-    'ceiling': { 'basic': 0.0, 'mid': 0.2, 'premium': 0.45, 'none': 0, '': 0 },
-    'surfaces': { 'basic': 0.0, 'mid': 0.3, 'premium': 0.7, 'none': 0, '': 0 },
-    'fixedFurniture': { 'basic': 0.0, 'mid': 0.25, 'premium': 0.6, 'none': 0, '': 0 },
-    'looseFurniture': { 'basic': 0.0, 'mid': 0.2, 'premium': 0.5, 'none': 0, '': 0 },
-    'furnishings': { 'basic': 0.0, 'mid': 0.2, 'premium': 0.5, 'none': 0, '': 0 },
-    'appliances': { 'basic': 0.0, 'mid': 0.3, 'premium': 0.7, 'none': 0, '': 0 }
+    'plumbing': { 'none': 0, 'standard': 0.0, 'premium': 0.35, 'luxury': 0.8, '': 0 },
+    'ac': { 'none': 0, 'standard': 0.0, 'premium': 0.4, 'luxury': 1.0, '': 0 },
+    'electrical': { 'none': 0, 'standard': 0.0, 'premium': 0.3, 'luxury': 0.7, '': 0 },
+    'elevator': { 'none': 0, 'standard': 0.0, 'premium': 0.5, 'luxury': 1.2, '': 0 },
+    'lighting': { 'none': 0, 'standard': 0.0, 'premium': 0.35, 'luxury': 0.8, '': 0 },
+    'windows': { 'none': 0, 'standard': 0.0, 'premium': 0.4, 'luxury': 0.9, '': 0 },
+    'ceiling': { 'none': 0, 'standard': 0.0, 'premium': 0.3, 'luxury': 0.7, '': 0 },
+    'surfaces': { 'none': 0, 'standard': 0.0, 'premium': 0.4, 'luxury': 1.0, '': 0 },
+    'fixedFurniture': { 'none': 0, 'standard': 0.0, 'premium': 0.4, 'luxury': 0.9, '': 0 },
+    'looseFurniture': { 'none': 0, 'standard': 0.0, 'premium': 0.35, 'luxury': 0.8, '': 0 },
+    'furnishings': { 'none': 0, 'standard': 0.0, 'premium': 0.35, 'luxury': 0.8, '': 0 },
+    'appliances': { 'none': 0, 'standard': 0.0, 'premium': 0.5, 'luxury': 1.2, '': 0 }
   };
   
   const locationMultiplier = 1.0;

@@ -1,10 +1,7 @@
 import { Droplet, Wind, Zap, ArrowUp } from "lucide-react";
 import { ComponentOption } from "@/types/estimator";
-import CategorySelectionGrid from "./CategorySelectionGrid";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { useState, useEffect } from "react";
-import { cn } from "@/lib/utils";
+import QualityLevelSelector from "./QualityLevelSelector";
+import { Badge } from "@/components/ui/badge";
 
 interface ComponentsStepProps {
   plumbing: ComponentOption;
@@ -21,140 +18,76 @@ const ComponentsStep = ({
   elevator,
   onOptionChange,
 }: ComponentsStepProps) => {
-  // Track which optional components are enabled
-  const [enabledComponents, setEnabledComponents] = useState({
-    ac: !!ac,
-    elevator: !!elevator
-  });
-
-  // When a component is disabled, update the parent
-  useEffect(() => {
-    Object.entries(enabledComponents).forEach(([component, enabled]) => {
-      if (!enabled) {
-        onOptionChange(component, '');
-      }
-    });
-  }, [enabledComponents, onOptionChange]);
-
-  // When a component option is selected but the component is disabled, enable it
-  useEffect(() => {
-    if (ac && !enabledComponents.ac) {
-      setEnabledComponents(prev => ({ ...prev, ac: true }));
-    }
-    if (elevator && !enabledComponents.elevator) {
-      setEnabledComponents(prev => ({ ...prev, elevator: true }));
-    }
-  }, [ac, elevator, enabledComponents]);
-
-  // Handle toggling component inclusion
-  const handleToggleComponent = (component: string, enabled: boolean) => {
-    setEnabledComponents(prev => ({ ...prev, [component]: enabled }));
-    
-    if (!enabled) {
-      onOptionChange(component, '');
-    } else {
-      onOptionChange(component, 'basic');
-    }
-  };
-  const componentCategories = {
-    plumbing: {
+  const components = [
+    {
+      key: "plumbing",
       title: "Plumbing Fixtures & Sanitary",
       icon: <Droplet className="size-6" />,
-      options: {
-        basic: "Standard faucets and fittings with basic fixtures",
-        mid: "Designer fittings with energy-efficient systems",
-        premium: "Luxury fixtures with smart water systems and touchless operation",
-      },
+      value: plumbing,
       required: true,
+      description: "Water supply, drainage, and sanitary fixtures",
     },
-    ac: {
+    {
+      key: "ac",
       title: "A.C. Systems",
       icon: <Wind className="size-6" />,
-      options: {
-        basic: "Split A.C. units for key rooms",
-        mid: "Multi-zone ductless systems with better energy efficiency",
-        premium: "Centralized HVAC with smart temperature control in all rooms",
-      },
-      optional: true,
-      enabled: enabledComponents.ac
+      value: ac,
+      required: false,
+      description: "Air conditioning and climate control",
     },
-    electrical: {
+    {
+      key: "electrical",
       title: "Electrical Works",
       icon: <Zap className="size-6" />,
-      options: {
-        basic: "Standard wiring with basic switches and outlets",
-        mid: "Higher-grade wiring with surge protection and better fixtures",
-        premium: "Smart electrical systems with home automation capabilities",
-      },
+      value: electrical,
       required: true,
+      description: "Wiring, switches, outlets, and electrical panels",
     },
-    elevator: {
+    {
+      key: "elevator",
       title: "Elevators/Lifts",
       icon: <ArrowUp className="size-6" />,
-      options: {
-        basic: "Compact residential lift with basic features",
-        mid: "Sleek passenger lift with better aesthetics",
-        premium: "High-speed luxury elevator with advanced features",
-      },
-      optional: true,
-      enabled: enabledComponents.elevator
+      value: elevator,
+      required: false,
+      description: "Vertical transportation systems",
     },
-  };
-
-  const selectedOptions = {
-    plumbing,
-    ac,
-    electrical,
-    elevator,
-  };
-
-  const optionalCategories = {
-    ac: componentCategories.ac,
-    elevator: componentCategories.elevator
-  };
+  ];
 
   return (
-    <div className="space-y-8">
-      <div className="space-y-4">
-        <h3 className="text-lg font-medium">Select Core Components</h3>
-        <p className="text-sm text-muted-foreground mb-4">
-          Choose which optional components to include in your estimate. Required components are always included.
+    <div className="space-y-6">
+      <div className="mb-6">
+        <h3 className="text-lg font-medium mb-2">Core Building Components</h3>
+        <p className="text-sm text-muted-foreground">
+          Select the quality level for each component. Choose "Not Required" to exclude optional items.
         </p>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {Object.entries(optionalCategories).map(([key, category]) => (
-            <div key={key} className={cn(
-              "flex items-center justify-between p-4 rounded-lg border transition-colors",
-              enabledComponents[key as keyof typeof enabledComponents] 
-                ? "border-vs/30 bg-vs/5" 
-                : "border-gray-200 bg-gray-50"
-            )}>
-              <div className="flex items-center gap-3">
-                <div className={cn(
-                  "p-2 rounded-lg",
-                  enabledComponents[key as keyof typeof enabledComponents] ? "bg-vs/10" : "bg-gray-200"
-                )}>{category.icon}</div>
-                <Label htmlFor={`toggle-${key}`} className={cn(
-                  enabledComponents[key as keyof typeof enabledComponents] ? "text-foreground" : "text-gray-400"
-                )}>{category.title}</Label>
-              </div>
-              <Switch 
-                id={`toggle-${key}`}
-                checked={enabledComponents[key as keyof typeof enabledComponents]}
-                onCheckedChange={(checked) => handleToggleComponent(key, checked)}
-              />
-            </div>
-          ))}
-        </div>
       </div>
-      
-      <CategorySelectionGrid
-        categories={componentCategories}
-        selectedOptions={selectedOptions}
-        onOptionChange={onOptionChange}
-        sectionTitle="Core Building Components"
-        sectionDescription="Select quality level for each component."
-      />
+
+      {components.map((component) => (
+        <div key={component.key} className="space-y-3 pb-6 border-b last:border-b-0">
+          <div className="flex items-start gap-3">
+            <div className="p-2 rounded-lg bg-vs/10 text-vs">
+              {component.icon}
+            </div>
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-1">
+                <h4 className="font-medium text-vs-dark">{component.title}</h4>
+                {component.required && (
+                  <Badge variant="outline" className="text-xs border-vs/30 text-vs">
+                    Required
+                  </Badge>
+                )}
+              </div>
+              <p className="text-sm text-muted-foreground">{component.description}</p>
+            </div>
+          </div>
+          
+          <QualityLevelSelector
+            component={component.key}
+            currentValue={component.value}
+            onChange={(value) => onOptionChange(component.key, value)}
+          />
+        </div>
+      ))}
     </div>
   );
 };

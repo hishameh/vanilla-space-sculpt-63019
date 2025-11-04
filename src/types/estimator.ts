@@ -1,5 +1,5 @@
 
-export type ComponentOption = "basic" | "mid" | "premium" | "none" | "";
+export type ComponentOption = "none" | "standard" | "premium" | "luxury" | "";
 export type PriceTier = "basic" | "mid" | "premium";
 export type AreaUnit = "sqft" | "sqm";
 
@@ -48,18 +48,18 @@ export const initialEstimate: ProjectEstimate = {
   projectType: "",
   area: 0,
   areaUnit: "sqft",
-  plumbing: "",
-  ac: "",
-  electrical: "",
-  elevator: "",
-  lighting: "",
-  windows: "",
-  ceiling: "",
-  surfaces: "",
-  fixedFurniture: "",
-  looseFurniture: "",
-  furnishings: "",
-  appliances: "",
+  plumbing: "standard",
+  ac: "none",
+  electrical: "standard",
+  elevator: "none",
+  lighting: "none",
+  windows: "none",
+  ceiling: "none",
+  surfaces: "none",
+  fixedFurniture: "none",
+  looseFurniture: "none",
+  furnishings: "none",
+  appliances: "none",
   totalCost: 0,
   phaseBreakdown: {
     planning: 0,

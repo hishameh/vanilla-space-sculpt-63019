@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ProjectEstimate } from "@/types/estimator";
+import { ProjectEstimate, ComponentOption } from "@/types/estimator";
 import { Download, Share, Calendar, Flag, CheckCheck, HardHat } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import UserInfoForm, { UserFormData } from "./UserInfoForm";
@@ -65,33 +65,46 @@ const ResultsStep = ({ estimate, onReset, onSave }: ResultsStepProps) => {
     onSave();
   };
 
+  // Helper to check if component is included
+  const isIncluded = (value: string | undefined): boolean => {
+    return !!(value && value !== 'none' && value !== '');
+  };
+
+  // Helper to format level label
+  const formatLevel = (level: ComponentOption) => {
+    if (level === 'standard') return 'Standard';
+    if (level === 'premium') return 'Premium';
+    if (level === 'luxury') return 'Luxury';
+    return level;
+  };
+
   // Group features by category
   const includedFeatures = {
     core: {
       title: "Core Building Components",
       items: [
-        estimate.plumbing && { name: "Plumbing & Sanitary", level: estimate.plumbing },
-        estimate.electrical && { name: "Electrical Systems", level: estimate.electrical },
-        estimate.ac && { name: "AC Systems", level: estimate.ac },
-        estimate.elevator && { name: "Elevators/Lifts", level: estimate.elevator },
+        isIncluded(estimate.plumbing) && { name: "Plumbing & Sanitary", level: estimate.plumbing },
+        isIncluded(estimate.electrical) && { name: "Electrical Systems", level: estimate.electrical },
+        isIncluded(estimate.ac) && { name: "AC Systems", level: estimate.ac },
+        isIncluded(estimate.elevator) && { name: "Elevators/Lifts", level: estimate.elevator },
       ].filter(Boolean)
     },
     finishes: {
       title: "Finishes & Surfaces",
       items: [
-        estimate.lighting && { name: "Lighting Solutions", level: estimate.lighting },
-        estimate.windows && { name: "Windows & Doors", level: estimate.windows },
-        estimate.ceiling && { name: "Ceiling Treatments", level: estimate.ceiling },
-        estimate.surfaces && { name: "Wall & Floor Surfaces", level: estimate.surfaces },
+        isIncluded(estimate.lighting) && { name: "Lighting Solutions", level: estimate.lighting },
+        isIncluded(estimate.windows) && { name: "Windows & Doors", level: estimate.windows },
+        isIncluded(estimate.ceiling) && { name: "Ceiling Treatments", level: estimate.ceiling },
+        isIncluded(estimate.surfaces) && { name: "Wall & Floor Surfaces", level: estimate.surfaces },
       ].filter(Boolean)
     },
     interiors: {
       title: "Interiors & Furnishings",
       items: [
-        estimate.fixedFurniture && { name: "Fixed Furniture", level: estimate.fixedFurniture },
-        estimate.looseFurniture && { name: "Loose Furniture", level: estimate.looseFurniture },
-        estimate.furnishings && { name: "Decorative Elements", level: estimate.furnishings },
-        estimate.appliances && { name: "Appliances & Fixtures", level: estimate.appliances },
+        isIncluded(estimate.fixedFurniture) && { name: "Fixed Furniture", level: estimate.fixedFurniture },
+        isIncluded(estimate.looseFurniture) && { name: "Loose Furniture", level: estimate.looseFurniture },
+        isIncluded(estimate.furnishings) && { name: "Decorative Elements", level: estimate.furnishings },
+        isIncluded(estimate.appliances) && { name: "Appliances & Fixtures", level: estimate.appliances },
       ].filter(Boolean)
     }
   };
@@ -209,7 +222,7 @@ const ResultsStep = ({ estimate, onReset, onSave }: ResultsStepProps) => {
                             <span>
                               {item.name}
                               {item.level && <span className="ml-1 text-xs bg-vs/20 text-vs-dark/70 px-2 py-0.5 rounded-full">
-                                {item.level === 'basic' ? 'Standard' : item.level === 'mid' ? 'Premium' : 'Luxury'}
+                                {formatLevel(item.level)}
                               </span>}
                             </span>
                           </li>
