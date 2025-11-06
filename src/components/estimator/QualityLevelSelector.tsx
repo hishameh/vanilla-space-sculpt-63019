@@ -7,6 +7,13 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
+interface QualityLevel {
+  label: string;
+  value: ComponentOption;
+  price: number;
+  description: string;
+}
+
 interface QualityLevelSelectorProps {
   component: string;
   currentValue: ComponentOption;
@@ -21,36 +28,36 @@ const QualityLevelSelector = ({
   required = false,
 }: QualityLevelSelectorProps) => {
   // Define quality levels with descriptions and prices per sqm
-  const qualityLevels: ComponentOption[] = [
+  const qualityLevels: QualityLevel[] = [
     {
       label: "Not Required",
-      value: "not_required",
+      value: "none",
       price: 0,
       description: "This component will not be included in the construction",
     },
     {
-      label: "Economy",
-      value: "economy",
-      price: component === "civilQuality" ? 50 : component === "plumbing" ? 40 : component === "ac" ? 80 : component === "electrical" ? 35 : 150,
-      description: "Basic quality materials and standard installation. Suitable for budget-conscious projects with minimal requirements.",
-    },
-    {
       label: "Standard",
       value: "standard",
-      price: component === "civilQuality" ? 100 : component === "plumbing" ? 75 : component === "ac" ? 150 : component === "electrical" ? 60 : 250,
+      price: component === "civilQuality" ? 500 : component === "plumbing" ? 400 : component === "ac" ? 800 : component === "electrical" ? 350 : 600,
       description: "Good quality materials with professional installation. Balanced approach for most residential and commercial projects.",
     },
     {
       label: "Premium",
       value: "premium",
-      price: component === "civilQuality" ? 180 : component === "plumbing" ? 120 : component === "ac" ? 250 : component === "electrical" ? 100 : 400,
+      price: component === "civilQuality" ? 900 : component === "plumbing" ? 700 : component === "ac" ? 1400 : component === "electrical" ? 650 : 1100,
       description: "High-grade materials and expert installation. Enhanced durability, aesthetics, and performance for quality-focused projects.",
+    },
+    {
+      label: "Luxury",
+      value: "luxury",
+      price: component === "civilQuality" ? 1800 : component === "plumbing" ? 1400 : component === "ac" ? 2800 : component === "electrical" ? 1300 : 2200,
+      description: "Highest quality materials with master craftsmanship. Premium finishes, cutting-edge technology, and exceptional attention to detail.",
     },
   ];
 
   // Filter out "Not Required" for required components
   const availableLevels = required
-    ? qualityLevels.filter((level) => level.value !== "not_required")
+    ? qualityLevels.filter((level) => level.value !== "none")
     : qualityLevels;
 
   return (
@@ -61,9 +68,9 @@ const QualityLevelSelector = ({
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
-                  onClick={() => onChange(level)}
+                  onClick={() => onChange(level.value)}
                   className={`relative p-4 rounded-lg border-2 transition-all duration-200 text-left hover:shadow-md ${
-                    currentValue.value === level.value
+                    currentValue === level.value
                       ? "border-vs bg-vs/5 shadow-sm"
                       : "border-gray-200 hover:border-vs/50"
                   }`}
@@ -74,15 +81,15 @@ const QualityLevelSelector = ({
                   </div>
                   <div className="text-xs text-muted-foreground">
                     {level.price === 0 ? (
-                      <span className="font-medium">SAR 0</span>
+                      <span className="font-medium">₹0</span>
                     ) : (
                       <>
-                        <span className="font-medium">SAR {level.price}</span>
+                        <span className="font-medium">₹{level.price}</span>
                         <span>/m²</span>
                       </>
                     )}
                   </div>
-                  {currentValue.value === level.value && (
+                  {currentValue === level.value && (
                     <div className="absolute top-2 right-2 size-2 rounded-full bg-vs" />
                   )}
                 </button>
@@ -94,11 +101,13 @@ const QualityLevelSelector = ({
           </TooltipProvider>
         ))}
       </div>
-      {currentValue.value && (
+      {currentValue && (
         <p className="text-xs text-muted-foreground pl-1">
-          Selected: <span className="font-medium">{currentValue.label}</span>
-          {currentValue.price > 0 && (
-            <span> - SAR {currentValue.price}/m²</span>
+          Selected: <span className="font-medium">
+            {qualityLevels.find(l => l.value === currentValue)?.label}
+          </span>
+          {qualityLevels.find(l => l.value === currentValue)?.price! > 0 && (
+            <span> - ₹{qualityLevels.find(l => l.value === currentValue)?.price}/m²</span>
           )}
         </p>
       )}

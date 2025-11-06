@@ -201,8 +201,9 @@ const CostTreeMap = ({ estimate, showLabels = false }: CostTreeMapProps) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
       currency: 'INR',
-      maximumFractionDigits: 0
-    }).format(amount);
+      maximumFractionDigits: 0,
+      minimumFractionDigits: 0
+    }).format(amount).replace('₹', '₹ ');
   };
 
   const CustomTooltip = ({ active, payload }: any) => {
@@ -268,8 +269,9 @@ const CustomizedContent = (props: any) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
       currency: 'INR',
-      maximumFractionDigits: 0
-    }).format(amount);
+      maximumFractionDigits: 0,
+      minimumFractionDigits: 0
+    }).format(amount).replace('₹', '₹ ');
   };
   
   return (

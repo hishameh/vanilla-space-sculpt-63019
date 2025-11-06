@@ -12,8 +12,9 @@ const CurrentEstimateDisplay = () => {
   const formattedCost = new Intl.NumberFormat('en-IN', {
     style: 'currency',
     currency: 'INR',
-    maximumFractionDigits: 0
-  }).format(Math.round(estimate.totalCost));
+    maximumFractionDigits: 0,
+    minimumFractionDigits: 0
+  }).format(Math.round(estimate.totalCost)).replace('₹', '₹ ');
 
   return (
     <div className="mb-8 flex flex-col items-center">

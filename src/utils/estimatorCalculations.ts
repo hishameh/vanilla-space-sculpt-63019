@@ -11,24 +11,37 @@ export const calculateCosts = (estimate: ProjectEstimate) => {
   const areaInSqm = estimate.areaUnit === "sqft" ? estimate.area / 10.764 : estimate.area;
   
   const componentMultipliers: Record<string, Record<ComponentOption, number>> = {
-    'civilQuality': { 'none': 0, 'standard': 0.0, 'premium': 0.4, 'luxury': 0.9, '': 0 },
-    'plumbing': { 'none': 0, 'standard': 0.0, 'premium': 0.35, 'luxury': 0.8, '': 0 },
-    'ac': { 'none': 0, 'standard': 0.0, 'premium': 0.4, 'luxury': 1.0, '': 0 },
-    'electrical': { 'none': 0, 'standard': 0.0, 'premium': 0.3, 'luxury': 0.7, '': 0 },
-    'elevator': { 'none': 0, 'standard': 0.0, 'premium': 0.5, 'luxury': 1.2, '': 0 },
-    'buildingEnvelope': { 'none': 0, 'standard': 0.0, 'premium': 0.45, 'luxury': 1.0, '': 0 },
-    'lighting': { 'none': 0, 'standard': 0.0, 'premium': 0.35, 'luxury': 0.8, '': 0 },
-    'windows': { 'none': 0, 'standard': 0.0, 'premium': 0.4, 'luxury': 0.9, '': 0 },
-    'ceiling': { 'none': 0, 'standard': 0.0, 'premium': 0.3, 'luxury': 0.7, '': 0 },
-    'surfaces': { 'none': 0, 'standard': 0.0, 'premium': 0.4, 'luxury': 1.0, '': 0 },
-    'fixedFurniture': { 'none': 0, 'standard': 0.0, 'premium': 0.4, 'luxury': 0.9, '': 0 },
-    'looseFurniture': { 'none': 0, 'standard': 0.0, 'premium': 0.35, 'luxury': 0.8, '': 0 },
-    'furnishings': { 'none': 0, 'standard': 0.0, 'premium': 0.35, 'luxury': 0.8, '': 0 },
-    'appliances': { 'none': 0, 'standard': 0.0, 'premium': 0.5, 'luxury': 1.2, '': 0 },
-    'artefacts': { 'none': 0, 'standard': 0.0, 'premium': 0.5, 'luxury': 1.5, '': 0 }
+    'civilQuality': { 'none': -0.3, 'standard': 0.0, 'premium': 0.5, 'luxury': 1.2, '': 0 },
+    'plumbing': { 'none': -0.15, 'standard': 0.0, 'premium': 0.35, 'luxury': 0.8, '': 0 },
+    'ac': { 'none': -0.2, 'standard': 0.0, 'premium': 0.4, 'luxury': 1.0, '': 0 },
+    'electrical': { 'none': -0.15, 'standard': 0.0, 'premium': 0.3, 'luxury': 0.7, '': 0 },
+    'elevator': { 'none': -0.1, 'standard': 0.0, 'premium': 0.5, 'luxury': 1.2, '': 0 },
+    'buildingEnvelope': { 'none': -0.2, 'standard': 0.0, 'premium': 0.45, 'luxury': 1.0, '': 0 },
+    'lighting': { 'none': -0.15, 'standard': 0.0, 'premium': 0.35, 'luxury': 0.8, '': 0 },
+    'windows': { 'none': -0.2, 'standard': 0.0, 'premium': 0.4, 'luxury': 0.9, '': 0 },
+    'ceiling': { 'none': -0.1, 'standard': 0.0, 'premium': 0.3, 'luxury': 0.7, '': 0 },
+    'surfaces': { 'none': -0.15, 'standard': 0.0, 'premium': 0.4, 'luxury': 1.0, '': 0 },
+    'fixedFurniture': { 'none': -0.15, 'standard': 0.0, 'premium': 0.4, 'luxury': 0.9, '': 0 },
+    'looseFurniture': { 'none': -0.1, 'standard': 0.0, 'premium': 0.35, 'luxury': 0.8, '': 0 },
+    'furnishings': { 'none': -0.1, 'standard': 0.0, 'premium': 0.35, 'luxury': 0.8, '': 0 },
+    'appliances': { 'none': -0.15, 'standard': 0.0, 'premium': 0.5, 'luxury': 1.2, '': 0 },
+    'artefacts': { 'none': -0.05, 'standard': 0.0, 'premium': 0.5, 'luxury': 1.5, '': 0 }
   };
   
-  const locationMultiplier = 1.0;
+  // Location-based pricing multipliers (Indian cities)
+  const locationMultipliers: Record<string, number> = {
+    'mumbai': 1.35,
+    'delhi': 1.25,
+    'bangalore': 1.20,
+    'hyderabad': 1.10,
+    'chennai': 1.10,
+    'pune': 1.15,
+    'kolkata': 1.05,
+    'ahmedabad': 1.00,
+    'other': 0.95
+  };
+  
+  const locationMultiplier = estimate.city ? (locationMultipliers[estimate.city.toLowerCase()] || 1.0) : 1.0;
   
   // Compute base cost first
   const baseRate = baseRatesPerSqm[estimate.projectType] || baseRatesPerSqm.residential;
@@ -110,14 +123,10 @@ const calculateCategoryTotal = (
   
   components.forEach(component => {
     const option = estimate[component as keyof ProjectEstimate] as ComponentOption;
-    // If not selected, subtract baseline share; if selected, add upgrade uplift (basic = 0)
-    if (!option || option === 'none') {
-      total -= baseAmount;
-    } else {
-      const multiplier = multipliers[component]?.[option];
-      if (multiplier !== undefined && multiplier > 0) {
-        total += baseAmount * multiplier;
-      }
+    const multiplier = multipliers[component]?.[option];
+    
+    if (multiplier !== undefined) {
+      total += baseAmount * multiplier;
     }
   });
   

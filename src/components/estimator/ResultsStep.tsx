@@ -35,8 +35,9 @@ const ResultsStep = ({ estimate, onReset, onSave }: ResultsStepProps) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
       currency: 'INR',
-      maximumFractionDigits: 0
-    }).format(amount);
+      maximumFractionDigits: 0,
+      minimumFractionDigits: 0
+    }).format(amount).replace('₹', '₹ ');
   };
   
   const handleShare = () => {
