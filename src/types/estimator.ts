@@ -1,88 +1,81 @@
+// Component quality options
+export type ComponentOption = "none" | "standard" | "premium" | "luxury";
 
-export type ComponentOption = "none" | "standard" | "premium" | "luxury" | "";
-export type PriceTier = "basic" | "mid" | "premium";
-export type AreaUnit = "sqft" | "sqm";
+// Category breakdown for cost visualization
+export interface CategoryBreakdown {
+  construction: number;
+  core: number;
+  finishes: number;
+  interiors: number;
+}
 
-export type CategoryBreakdown = {
-  [key: string]: number;
-};
+// Phase breakdown for project timeline
+export interface PhaseBreakdown {
+  planning: number;
+  construction: number;
+  interiors: number;
+}
 
-export type ProjectEstimate = {
+// Timeline information
+export interface Timeline {
+  totalMonths: number;
+  phases: {
+    planning: number;
+    construction: number;
+    interiors: number;
+  };
+}
+
+// Main project estimate interface
+export interface ProjectEstimate {
+  // Location
   state: string;
   city: string;
+  
+  // Project basics
   projectType: string;
   area: number;
-  areaUnit: AreaUnit;
-  plumbing: ComponentOption;
-  ac: ComponentOption;
-  electrical: ComponentOption;
-  elevator: ComponentOption;
+  areaUnit: "sqft" | "sqm";
+  complexity: number;
+  selectedMaterials: string[];
+  
+  // Core building components
   civilQuality: ComponentOption;
+  plumbing: ComponentOption;
+  electrical: ComponentOption;
+  ac: ComponentOption;
+  elevator: ComponentOption;
+  
+  // Finishes
+  buildingEnvelope: ComponentOption;
   lighting: ComponentOption;
   windows: ComponentOption;
   ceiling: ComponentOption;
   surfaces: ComponentOption;
-  buildingEnvelope: ComponentOption;
+  
+  // Interiors
   fixedFurniture: ComponentOption;
   looseFurniture: ComponentOption;
   furnishings: ComponentOption;
   appliances: ComponentOption;
   artefacts: ComponentOption;
+  
+  // Calculated values
   totalCost: number;
-  phaseBreakdown: {
-    planning: number;
-    construction: number;
-    interiors: number;
-  };
   categoryBreakdown: CategoryBreakdown;
-  timeline: {
-    totalMonths: number;
-    phases: {
-      planning: number;
-      construction: number;
-      interiors: number;
-    };
-  };
+  phaseBreakdown: PhaseBreakdown;
+  timeline: Timeline;
 }
 
-export const initialEstimate: ProjectEstimate = {
-  state: "",
-  city: "",
-  projectType: "",
-  area: 0,
-  areaUnit: "sqft",
-  plumbing: "standard",
-  ac: "none",
-  electrical: "standard",
-  elevator: "none",
-  civilQuality: "standard",
-  lighting: "none",
-  windows: "none",
-  ceiling: "none",
-  surfaces: "none",
-  buildingEnvelope: "none",
-  fixedFurniture: "none",
-  looseFurniture: "none",
-  furnishings: "none",
-  appliances: "none",
-  artefacts: "none",
-  totalCost: 0,
-  phaseBreakdown: {
-    planning: 0,
-    construction: 0,
-    interiors: 0
-  },
-  categoryBreakdown: {
-    core: 0,
-    finishes: 0,
-    interiors: 0
-  },
-  timeline: {
-    totalMonths: 0,
-    phases: {
-      planning: 0,
-      construction: 0,
-      interiors: 0
-    }
-  }
-};
+// For saved estimates
+export interface SavedEstimate extends ProjectEstimate {
+  id: string;
+  savedAt: string;
+}
+
+// User form data
+export interface UserFormData {
+  name: string;
+  email: string;
+  phone?: string;
+}
