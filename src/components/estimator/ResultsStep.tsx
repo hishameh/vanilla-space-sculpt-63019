@@ -2,10 +2,10 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ProjectEstimate, ComponentOption } from "@/types/estimator";
-import { Download, Share, Calendar, Flag, CheckCheck, HardHat } from "lucide-react";
+import { Share, Calendar, Flag, CheckCheck, HardHat } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import UserInfoForm, { UserFormData } from "./UserInfoForm";
-import { Separator } from "@/components/ui/separator";
+// import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import CostTreeMap from "./CostTreeMap";
 
@@ -39,6 +39,8 @@ const ResultsStep = ({ estimate, onReset, onSave }: ResultsStepProps) => {
       minimumFractionDigits: 0
     }).format(amount).replace('₹', '₹ ');
   };
+  
+  const toSentenceCase = (s: string) => s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : s;
   
   const handleShare = () => {
     if (navigator.share) {
@@ -178,7 +180,7 @@ const ResultsStep = ({ estimate, onReset, onSave }: ResultsStepProps) => {
   ];
   
   return (
-    <div className="space-y-8 overflow-y-auto max-h-[80vh] px-2 pb-6">
+    <div className="space-y-8 overflow-y-auto overflow-x-hidden max-h-[80vh] px-2 pb-6">
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -198,7 +200,7 @@ const ResultsStep = ({ estimate, onReset, onSave }: ResultsStepProps) => {
           </div>
           <div className="flex-1 min-w-[200px]">
             <h3 className="text-sm text-vs-dark/70 mb-1">Project Type</h3>
-            <p className="font-medium">{estimate.projectType}</p>
+            <p className="font-medium">{toSentenceCase(estimate.projectType)}</p>
           </div>
           <div className="flex-1 min-w-[200px]">
             <h3 className="text-sm text-vs-dark/70 mb-1">Area</h3>
@@ -229,7 +231,7 @@ const ResultsStep = ({ estimate, onReset, onSave }: ResultsStepProps) => {
                 <div className="text-center text-sm text-vs-dark/70 mb-2">
                   <p>Hover over sections to see details</p>
                 </div>
-                <div className="aspect-video">
+                <div className="w-full h-[420px] overflow-hidden rounded-lg border border-vs/10">
                   <CostTreeMap estimate={estimate} showLabels={true} />
                 </div>
               </div>
@@ -352,13 +354,6 @@ const ResultsStep = ({ estimate, onReset, onSave }: ResultsStepProps) => {
       </motion.div>
       
       <div className="flex flex-wrap gap-4 justify-center">
-        <button 
-          onClick={() => setIsUserFormOpen(true)}
-          className="flex items-center gap-2 px-6 py-3 bg-vs hover:bg-vs-light text-white rounded-lg transition-colors"
-        >
-          <Download size={18} /> Download Detailed Report
-        </button>
-        
         <button 
           onClick={handleShare}
           className="flex items-center gap-2 px-6 py-3 border border-vs text-vs rounded-lg hover:bg-vs/5 transition-colors"

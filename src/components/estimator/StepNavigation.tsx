@@ -1,5 +1,5 @@
 
-import { ChevronRight, ChevronLeft, Download } from "lucide-react";
+import { ChevronRight, ChevronLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEstimator } from "@/context/EstimatorContext";
 
@@ -94,14 +94,7 @@ const StepNavigation = () => {
               </button>
             </div>
             
-            <div className="flex gap-3">
-              <button
-                onClick={handleSaveEstimate}
-                className="flex items-center gap-2 px-6 py-3 bg-vs hover:bg-vs-light text-white font-medium rounded-full transition-colors"
-              >
-                <Download size={18} /> <span className="text-white">Download Report</span>
-              </button>
-            </div>
+            <div className="flex gap-3"></div>
           </div>
         )}
       </div>

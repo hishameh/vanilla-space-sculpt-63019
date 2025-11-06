@@ -102,14 +102,19 @@ const QualityLevelSelector = ({
         ))}
       </div>
       {currentValue && (
-        <p className="text-xs text-muted-foreground pl-1">
-          Selected: <span className="font-medium">
-            {qualityLevels.find(l => l.value === currentValue)?.label}
-          </span>
-          {qualityLevels.find(l => l.value === currentValue)?.price! > 0 && (
-            <span> - ₹{qualityLevels.find(l => l.value === currentValue)?.price}/m²</span>
-          )}
-        </p>
+        <>
+          <p className="text-xs text-muted-foreground pl-1">
+            Selected: <span className="font-medium">
+              {qualityLevels.find(l => l.value === currentValue)?.label}
+            </span>
+            {qualityLevels.find(l => l.value === currentValue)?.price! > 0 && (
+              <span> - ₹{qualityLevels.find(l => l.value === currentValue)?.price}/m²</span>
+            )}
+          </p>
+          <p className="text-xs text-muted-foreground pl-1 mt-1">
+            {qualityLevels.find(l => l.value === currentValue)?.description}
+          </p>
+        </>
       )}
     </div>
   );

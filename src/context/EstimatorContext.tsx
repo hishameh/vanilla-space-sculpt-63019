@@ -54,10 +54,11 @@ export const EstimatorProvider = ({ children }: { children: ReactNode }) => {
       }
     }
   }, [
-    estimate.projectType, estimate.area, estimate.areaUnit,
+    estimate.projectType, estimate.area, estimate.areaUnit, estimate.city,
     estimate.plumbing, estimate.ac, estimate.electrical, estimate.elevator,
     estimate.lighting, estimate.windows, estimate.ceiling, estimate.surfaces,
-    estimate.fixedFurniture, estimate.looseFurniture, estimate.furnishings, estimate.appliances
+    estimate.fixedFurniture, estimate.looseFurniture, estimate.furnishings, estimate.appliances,
+    estimate.civilQuality, estimate.buildingEnvelope, estimate.artefacts
   ]);
 
   const updateEstimate = <K extends keyof ProjectEstimate>(field: K, value: ProjectEstimate[K]) => {

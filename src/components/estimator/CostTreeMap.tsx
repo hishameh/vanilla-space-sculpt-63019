@@ -224,8 +224,8 @@ const CostTreeMap = ({ estimate, showLabels = false }: CostTreeMapProps) => {
   };
 
   return (
-    <div className="flex flex-col space-y-4">
-      <div className="h-[400px] w-full">
+    <div className="flex flex-col space-y-4 min-w-0">
+      <div className="h-[400px] w-full overflow-hidden rounded-lg">
         {data.length > 0 ? (
           <ResponsiveContainer width="100%" height="100%">
             <Treemap
