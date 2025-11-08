@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import AnimatedText from "@/components/AnimatedText";
 
 interface AreaStepProps {
-  area: number;O
+  area: number;
   areaUnit: "sqft" | "sqm";
   projectType: string;
   onAreaChange: (area: number) => void;
