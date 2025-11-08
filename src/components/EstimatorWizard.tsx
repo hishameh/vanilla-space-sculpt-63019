@@ -12,7 +12,7 @@ export type { ComponentOption };
 const EstimatorWizard = () => {
   return (
     <EstimatorProvider>
-      <div className="glass-card border border-primary/5 rounded-2xl p-6 md:p-6 lg:p-8 estimator-container">
+      <div className="glass-card border border-primary/5 rounded-2xl p-4 md:p-5 lg:p-6 estimator-container">
         <StepIndicator />
         <CurrentEstimateDisplay />
         <div className="overflow-visible">

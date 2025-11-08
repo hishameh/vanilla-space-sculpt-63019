@@ -181,10 +181,10 @@ const ImprovedCostVisualization = ({ estimate }: ImprovedCostVisualizationProps)
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full h-full overflow-y-auto">
       {/* Donut Chart */}
-      <div className="mb-4">
-        <ResponsiveContainer width="100%" height={200}>
+      <div className="mb-3">
+        <ResponsiveContainer width="100%" height={180}>
           <div className="relative">
             <svg viewBox="0 0 200 200" className="w-full h-full">
               <g transform="translate(100, 100)">
@@ -234,7 +234,7 @@ const ImprovedCostVisualization = ({ estimate }: ImprovedCostVisualizationProps)
       </div>
 
       {/* Legend */}
-      <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-[10px] mb-4">
+      <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-[10px] mb-3">
         {data.map((item, index) => (
           <div key={index} className="flex items-center">
             <div 
@@ -247,8 +247,8 @@ const ImprovedCostVisualization = ({ estimate }: ImprovedCostVisualizationProps)
       </div>
 
       {/* Horizontal Bar Chart */}
-      <div className="mt-4">
-        <ResponsiveContainer width="100%" height={data.length * 35 + 40}>
+      <div className="mt-3">
+        <ResponsiveContainer width="100%" height={Math.min(data.length * 30 + 30, 200)}>
           <BarChart
             data={data}
             layout="vertical"

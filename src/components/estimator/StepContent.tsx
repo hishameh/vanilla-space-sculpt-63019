@@ -38,10 +38,10 @@ const StepContent = () => {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -10 }}
-        transition={{ duration: 0.3 }}
-        className="min-h-[400px]"
-      >
-        {step === 1 && (
+        transition={{ duration: 0.3 }}
+        className="min-h-[300px]"
+      >
+        {step === 1 && (
           <LocationStep 
             selectedState={estimate.state}
             selectedCity={estimate.city}
@@ -68,8 +68,8 @@ const StepContent = () => {
         )}
         
         {step === 4 && (
-          <div className="space-y-12">
-            <ComponentsStep 
+          <div className="space-y-6">
+            <ComponentsStep
               plumbing={estimate.plumbing}
               ac={estimate.ac}
               electrical={estimate.electrical}

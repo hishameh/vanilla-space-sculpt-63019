@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { ProjectEstimate, ComponentOption } from "@/types/estimator";
-import { Share, Calendar, Flag, CheckCheck, HardHat, PieChart, BarChart3 } from "lucide-react";
+import { Share, Calendar, CheckCheck, PieChart, BarChart3, Mail } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import UserInfoForm, { UserFormData } from "./UserInfoForm";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -57,6 +57,25 @@ const ResultsStep = ({ estimate, onReset, onSave }: ResultsStepProps) => {
     onSave();
   };
 
+  const handleExportQuote = () => {
+    const subject = encodeURIComponent(`Project Cost Estimate - ${estimate.projectType}`);
+    const body = encodeURIComponent(`Hi,
+
+I would like to discuss the following project estimate:
+
+Location: ${estimate.city}, ${estimate.state}
+Project Type: ${toSentenceCase(estimate.projectType)}
+Area: ${estimate.area} ${estimate.areaUnit}
+Estimated Total Cost: ${formatCurrency(estimate.totalCost)}
+Cost per ${estimate.areaUnit}: ${formatCurrency(Math.round(estimate.totalCost / estimate.area))}
+
+Please contact me to discuss this project in detail.
+
+Thank you!`);
+    
+    window.location.href = `mailto:hello@vanillasometh.in?subject=${subject}&body=${body}`;
+  };
+
   // Helper to check if component is included
   const isIncluded = (value: string | undefined): boolean => {
     return !!(value && value !== 'none' && value !== '');
@@ -105,64 +124,64 @@ const ResultsStep = ({ estimate, onReset, onSave }: ResultsStepProps) => {
   };
   
   return (
-    <div className="space-y-6 overflow-y-auto overflow-x-hidden max-h-[80vh] px-2 pb-6">
+    <div className="space-y-4 overflow-y-auto overflow-x-hidden max-h-[75vh] px-2 pb-4">
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="bg-white p-4 rounded-xl border border-vs/10 shadow-sm"
+        className="bg-white p-3 rounded-xl border border-vs/10 shadow-sm"
       >
-        <div className="mb-4 p-2 bg-orange-50 border border-orange-100 rounded-lg text-xs text-vs-dark/80 text-center">
+        <div className="mb-3 p-2 bg-orange-50 border border-orange-100 rounded-lg text-xs text-vs-dark/80 text-center">
           <p>This is an indicative estimate. For refined analysis, <a href="#contact" className="text-vs font-medium underline">contact our team</a>.</p>
         </div>
         
-        <h2 className="text-lg font-bold text-vs-dark text-center mb-3">Estimate Summary</h2>
+        <h2 className="text-base font-bold text-vs-dark text-center mb-2">Estimate Summary</h2>
         
-        <div className="grid grid-cols-3 gap-3 mb-4">
+        <div className="grid grid-cols-3 gap-2 mb-3">
           <div>
-            <h3 className="text-xs text-vs-dark/70 mb-1">Location</h3>
-            <p className="font-medium text-sm">{estimate.city}, {estimate.state}</p>
+            <h3 className="text-[10px] text-vs-dark/70 mb-0.5">Location</h3>
+            <p className="font-medium text-xs">{estimate.city}, {estimate.state}</p>
           </div>
           <div>
-            <h3 className="text-xs text-vs-dark/70 mb-1">Project Type</h3>
-            <p className="font-medium text-sm">{toSentenceCase(estimate.projectType)}</p>
+            <h3 className="text-[10px] text-vs-dark/70 mb-0.5">Project Type</h3>
+            <p className="font-medium text-xs">{toSentenceCase(estimate.projectType)}</p>
           </div>
           <div>
-            <h3 className="text-xs text-vs-dark/70 mb-1">Area</h3>
-            <p className="font-medium text-sm">{estimate.area} {estimate.areaUnit}</p>
+            <h3 className="text-[10px] text-vs-dark/70 mb-0.5">Area</h3>
+            <p className="font-medium text-xs">{estimate.area} {estimate.areaUnit}</p>
           </div>
         </div>
         
-        <div className="border-t border-gray-100 pt-3 mb-4">
+        <div className="border-t border-gray-100 pt-2 mb-3">
           <div className="text-center">
-            <h3 className="text-xs text-vs-dark/70 mb-1">Estimated Total Cost</h3>
-            <p className="text-2xl font-bold text-vs">{formatCurrency(estimate.totalCost)}</p>
-            <p className="text-xs text-vs-dark/60">
+            <h3 className="text-[10px] text-vs-dark/70 mb-0.5">Estimated Total Cost</h3>
+            <p className="text-xl font-bold text-vs">{formatCurrency(estimate.totalCost)}</p>
+            <p className="text-[10px] text-vs-dark/60">
               ({formatCurrency(Math.round(estimate.totalCost / estimate.area))} per {estimate.areaUnit})
             </p>
           </div>
         </div>
         
-        <div className="flex gap-2 justify-center">
+        <div className="flex gap-2 justify-center flex-wrap">
           <button
             onClick={handleShare}
-            className="flex items-center gap-2 px-4 py-2 bg-vs text-white rounded-lg hover:bg-vs/90 transition-colors text-sm"
+            className="flex items-center gap-2 px-3 py-2 bg-vs text-white rounded-lg hover:bg-vs/90 transition-colors text-xs"
           >
-            <Share className="w-4 h-4" />
-            Share Estimate
+            <Share className="w-3 h-3" />
+            Share
           </button>
           <button
-            onClick={() => setIsUserFormOpen(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-white text-vs border border-vs rounded-lg hover:bg-vs/5 transition-colors text-sm"
+            onClick={handleExportQuote}
+            className="flex items-center gap-2 px-3 py-2 bg-white text-vs border border-vs rounded-lg hover:bg-vs/5 transition-colors text-xs"
           >
-            <Flag className="w-4 h-4" />
-            Get Detailed Quote
+            <Mail className="w-3 h-3" />
+            Discuss Quote
           </button>
         </div>
       </motion.div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3 mb-4">
+        <TabsList className="grid w-full grid-cols-3 mb-3">
           <TabsTrigger value="breakdown" className="text-xs">
             <PieChart className="w-4 h-4 mr-1" />
             Cost Breakdown
@@ -177,33 +196,33 @@ const ResultsStep = ({ estimate, onReset, onSave }: ResultsStepProps) => {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="breakdown" className="space-y-4">
+        <TabsContent value="breakdown" className="space-y-3">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="bg-white p-4 rounded-xl border border-vs/10 shadow-sm"
+            className="bg-white p-3 rounded-xl border border-vs/10 shadow-sm"
           >
-            <h3 className="text-sm font-semibold text-vs-dark mb-3 flex items-center gap-2">
-              <BarChart3 className="w-4 h-4" />
+            <h3 className="text-xs font-semibold text-vs-dark mb-2 flex items-center gap-2">
+              <BarChart3 className="w-3 h-3" />
               Detailed Cost Structure
             </h3>
-            <div className="h-[420px] overflow-hidden">
+            <div className="h-[350px] overflow-y-auto">
               <ImprovedCostVisualization estimate={estimate} />
             </div>
           </motion.div>
         </TabsContent>
 
-        <TabsContent value="timeline" className="space-y-4">
+        <TabsContent value="timeline" className="space-y-3">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="bg-white p-4 rounded-xl border border-vs/10 shadow-sm"
+            className="bg-white p-3 rounded-xl border border-vs/10 shadow-sm"
           >
             <PhaseTimelineCost estimate={estimate} />
           </motion.div>
         </TabsContent>
 
-        <TabsContent value="features" className="space-y-4">
+        <TabsContent value="features" className="space-y-3">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -211,13 +230,13 @@ const ResultsStep = ({ estimate, onReset, onSave }: ResultsStepProps) => {
           >
             {Object.entries(includedFeatures).map(([key, category]) => (
               category.items.length > 0 && (
-                <div key={key} className="bg-white p-4 rounded-xl border border-vs/10 shadow-sm">
-                  <h3 className="text-sm font-semibold text-vs-dark mb-3">{category.title}</h3>
-                  <div className="space-y-2">
+                <div key={key} className="bg-white p-3 rounded-xl border border-vs/10 shadow-sm">
+                  <h3 className="text-xs font-semibold text-vs-dark mb-2">{category.title}</h3>
+                  <div className="space-y-1">
                     {category.items.map((item: any, idx: number) => (
-                      <div key={idx} className="flex justify-between items-center py-2 border-b border-gray-100 last:border-0">
-                        <span className="text-xs text-vs-dark/80">{item.name}</span>
-                        <span className="text-xs font-medium text-vs">{formatLevel(item.level)}</span>
+                      <div key={idx} className="flex justify-between items-center py-1.5 border-b border-gray-100 last:border-0">
+                        <span className="text-[10px] text-vs-dark/80">{item.name}</span>
+                        <span className="text-[10px] font-medium text-vs">{formatLevel(item.level)}</span>
                       </div>
                     ))}
                   </div>
