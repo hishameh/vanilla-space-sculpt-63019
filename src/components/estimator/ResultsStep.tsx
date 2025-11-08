@@ -138,4 +138,103 @@ const ResultsStep = ({ estimate, onReset, onSave }: ResultsStepProps) => {
             <h3 className="text-xs text-vs-dark/70 mb-1">Estimated Total Cost</h3>
             <p className="text-2xl font-bold text-vs">{formatCurrency(estimate.totalCost)}</p>
             <p className="text-xs text-vs-dark/60">
-              ({formatCurrency(Math.round(estimate.totalCost / estimate.area)
+              ({formatCurrency(Math.round(estimate.totalCost / estimate.area))} per {estimate.areaUnit})
+            </p>
+          </div>
+        </div>
+        
+        <div className="flex gap-2 justify-center">
+          <button
+            onClick={handleShare}
+            className="flex items-center gap-2 px-4 py-2 bg-vs text-white rounded-lg hover:bg-vs/90 transition-colors text-sm"
+          >
+            <Share className="w-4 h-4" />
+            Share Estimate
+          </button>
+          <button
+            onClick={() => setIsUserFormOpen(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-white text-vs border border-vs rounded-lg hover:bg-vs/5 transition-colors text-sm"
+          >
+            <Flag className="w-4 h-4" />
+            Get Detailed Quote
+          </button>
+        </div>
+      </motion.div>
+
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-3 mb-4">
+          <TabsTrigger value="breakdown" className="text-xs">
+            <PieChart className="w-4 h-4 mr-1" />
+            Cost Breakdown
+          </TabsTrigger>
+          <TabsTrigger value="timeline" className="text-xs">
+            <Calendar className="w-4 h-4 mr-1" />
+            Timeline
+          </TabsTrigger>
+          <TabsTrigger value="features" className="text-xs">
+            <CheckCheck className="w-4 h-4 mr-1" />
+            Included Features
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="breakdown" className="space-y-4">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="bg-white p-4 rounded-xl border border-vs/10 shadow-sm"
+          >
+            <h3 className="text-sm font-semibold text-vs-dark mb-3 flex items-center gap-2">
+              <BarChart3 className="w-4 h-4" />
+              Detailed Cost Structure
+            </h3>
+            <div className="h-[420px] overflow-hidden">
+              <ImprovedCostVisualization estimate={estimate} />
+            </div>
+          </motion.div>
+        </TabsContent>
+
+        <TabsContent value="timeline" className="space-y-4">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="bg-white p-4 rounded-xl border border-vs/10 shadow-sm"
+          >
+            <PhaseTimelineCost estimate={estimate} />
+          </motion.div>
+        </TabsContent>
+
+        <TabsContent value="features" className="space-y-4">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="space-y-4"
+          >
+            {Object.entries(includedFeatures).map(([key, category]) => (
+              category.items.length > 0 && (
+                <div key={key} className="bg-white p-4 rounded-xl border border-vs/10 shadow-sm">
+                  <h3 className="text-sm font-semibold text-vs-dark mb-3">{category.title}</h3>
+                  <div className="space-y-2">
+                    {category.items.map((item: any, idx: number) => (
+                      <div key={idx} className="flex justify-between items-center py-2 border-b border-gray-100 last:border-0">
+                        <span className="text-xs text-vs-dark/80">{item.name}</span>
+                        <span className="text-xs font-medium text-vs">{formatLevel(item.level)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )
+            ))}
+          </motion.div>
+        </TabsContent>
+      </Tabs>
+
+      <UserInfoForm
+        isOpen={isUserFormOpen}
+        onClose={() => setIsUserFormOpen(false)}
+        onSubmit={handleUserFormSubmit}
+      />
+    </div>
+  );
+};
+
+export default ResultsStep;

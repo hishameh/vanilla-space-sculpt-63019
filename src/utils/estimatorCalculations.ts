@@ -1,4 +1,4 @@
-import { ProjectEstimate, ValidationResult, ComponentOption } from "@/types/estimator";
+import { ProjectEstimate, ComponentOption } from "@/types/estimator";
 
 /**
  * Format currency in Indian format
@@ -45,7 +45,7 @@ export const sqmToSqft = (sqm: number): number => {
 /**
  * Validate estimate for accuracy
  */
-export const validateEstimate = (estimate: ProjectEstimate): ValidationResult => {
+export const validateEstimate = (estimate: ProjectEstimate) => {
   const warnings: string[] = [];
   const errors: string[] = [];
   const suggestions: string[] = [];
@@ -105,7 +105,7 @@ export const getQualityLabel = (level: ComponentOption): string => {
  * Check if component is included
  */
 export const isComponentIncluded = (value: ComponentOption | undefined): boolean => {
-  return !!(value && value !== "none" && value !== "");
+  return !!(value && value !== "none");
 };
 
 /**
