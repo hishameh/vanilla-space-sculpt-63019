@@ -1,18 +1,18 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
-import ArchitectFeeCalculator from "./components/ArchitectFeeCalculator";
-import NotFound from "./pages/NotFound";
+import React from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import ArchitectFee from './components/ArchitectFee';
 
-const App = () => (
-  <BrowserRouter>
-    <div className="bg-[#f0ede8] min-h-screen">
-      <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="/architect-fee" element={<ArchitectFeeCalculator />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </div>
-  </BrowserRouter>
-);
+const App = () => {
+  return (
+    <BrowserRouter>
+      <div className="min-h-screen bg-gray-50">
+        <Routes>
+          <Route path="/architect-fee" element={<ArchitectFee />} />
+          {/* other routes */}
+        </Routes>
+      </div>
+    </BrowserRouter>
+  );
+};
 
 export default App;
