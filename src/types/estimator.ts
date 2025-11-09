@@ -79,3 +79,20 @@ export interface UserFormData {
   email: string;
   phone?: string;
 }
+// Add to existing ProjectEstimate interface
+export interface ProjectEstimate {
+  // ... existing fields ...
+  
+  // Architect Fee related fields
+  architectFee: {
+    baseFee: number;
+    ffeFee: number;
+    landscapeFee: number;
+    vizFee: number;
+    overheadAllocation: number;
+    profit: number;
+    tax: number;
+    totalFee: number;
+    currency: string;
+  };
+}
