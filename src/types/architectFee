@@ -1,12 +1,30 @@
+export interface Typology {
+  model: 'PERCENT' | 'SQM';
+  rate: number;
+  min: number;
+}
+
 export interface ArchitectFeeRates {
-  typologies: Record<string, { model: 'PERCENT' | 'SQM'; rate: number; min: number }>;
-  clientMultipliers: Record<string, number>;
-  complexity: Record<string, number>;
+  typologies: {
+    [key: string]: Typology;
+  };
+  clientMultipliers: {
+    [key: string]: number;
+  };
+  complexity: {
+    [key: string]: number;
+  };
+  vizPrices: {
+    [key: string]: number;
+  };
+  extraRender: {
+    [key: string]: number;
+  };
+  conversionRates: {
+    [key: string]: number;
+  };
   premiumMultiplier: number;
   rushMultiplier: number;
-  vizPrices: Record<string, number>;
-  extraRender: Record<string, number>;
-  conversionRates: Record<string, number>;
   profitMargin: number;
   taxRate: number;
   minimumFeeStudio: number;
