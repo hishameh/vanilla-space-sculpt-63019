@@ -512,3 +512,32 @@ export const useEstimator = () => {
   }
   return context;
 };
+// Add to existing imports
+import { calculateArchitectFee } from '@/utils/feeCalculations';
+
+// Inside EstimatorContext
+const calculateFullEstimate = useCallback((estimate: ProjectEstimate): ProjectEstimate => {
+  // ... existing calculation logic ...
+
+  const architectFee = calculateArchitectFee(
+    estimate.projectType,
+    totalCost,
+    estimate.area,
+    'Individual',
+    estimate.complexity === 'premium' ? 'Premium' : 'Standard',
+    true,
+    true,
+    'Standard',
+    false,
+    'INR'
+  );
+
+  return {
+    ...estimate,
+    totalCost,
+    categoryBreakdown,
+    phaseBreakdown,
+    timeline,
+    architectFee // Add architect fee to the estimate
+  };
+}, [/* existing dependencies */]);
