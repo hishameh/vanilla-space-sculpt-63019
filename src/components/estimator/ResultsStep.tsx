@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { ProjectEstimate, ComponentOption } from "@/types/estimator";
-import { Share, Calendar, Flag, CheckCheck, HardHat, PieChart, BarChart3 } from "lucide-react";
+import { Share, CheckCircle2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ImprovedCostVisualization from "./ImprovedCostVisualization";
 import PhaseTimelineCost from "./PhaseTimelineCost";
 import ContactCTAStrategy from "./ContactCTAStrategy";
@@ -16,7 +15,6 @@ interface ResultsStepProps {
 
 const ResultsStep = ({ estimate, onReset, onSave }: ResultsStepProps) => {
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState("breakdown");
   
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-IN', {
@@ -30,17 +28,27 @@ const ResultsStep = ({ estimate, onReset, onSave }: ResultsStepProps) => {
   const toSentenceCase = (s: string) => s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : s;
   
   const handleShare = () => {
+    const shareText = `My Construction Estimate:\n\n` +
+      `Location: ${estimate.city}, ${estimate.state}\n` +
+      `Project: ${toSentenceCase(estimate.projectType)}\n` +
+      `Area: ${estimate.area} ${estimate.areaUnit}\n` +
+      `Total Cost: ${formatCurrency(estimate.totalCost)}\n` +
+      `Per ${estimate.areaUnit}: ${formatCurrency(Math.round(estimate.totalCost / estimate.area))}\n\n` +
+      `Get your estimate at: ${window.location.origin}`;
+    
     if (navigator.share) {
       navigator.share({
         title: 'My Construction Cost Estimate',
-        text: `My estimated construction cost is ${formatCurrency(estimate.totalCost)} for a ${estimate.area} ${estimate.areaUnit} ${estimate.projectType} project.`,
+        text: shareText,
         url: window.location.href,
-      })
-      .catch((error) => console.log('Error sharing', error));
+      }).catch((error) => console.log('Error sharing', error));
     } else {
-      toast({
-        title: "Sharing not supported",
-        description: "Your browser does not support the Web Share API."
+      // Fallback: Copy to clipboard
+      navigator.clipboard.writeText(shareText).then(() => {
+        toast({
+          title: "Copied to clipboard!",
+          description: "Share text has been copied to your clipboard."
+        });
       });
     }
   };
@@ -58,157 +66,169 @@ const ResultsStep = ({ estimate, onReset, onSave }: ResultsStepProps) => {
     return level;
   };
 
-  // Group features by category
-  const includedFeatures = {
-    core: {
-      title: "Core Building Components",
-      items: [
-        isIncluded(estimate.civilQuality) && { name: "Quality of Construction - Civil Materials", level: estimate.civilQuality },
-        isIncluded(estimate.plumbing) && { name: "Plumbing & Sanitary", level: estimate.plumbing },
-        isIncluded(estimate.electrical) && { name: "Electrical Systems", level: estimate.electrical },
-        isIncluded(estimate.ac) && { name: "AC & HVAC Systems", level: estimate.ac },
-        isIncluded(estimate.elevator) && { name: "Vertical Transportation", level: estimate.elevator },
-      ].filter(Boolean)
+  // Create pricing list for all selected components
+  const pricingList = [
+    isIncluded(estimate.civilQuality) && { 
+      category: "Core Components",
+      name: "Quality of Construction - Civil Materials", 
+      level: estimate.civilQuality 
     },
-    finishes: {
-      title: "Finishes & Surfaces",
-      items: [
-        isIncluded(estimate.buildingEnvelope) && { name: "Building Envelope & Facade", level: estimate.buildingEnvelope },
-        isIncluded(estimate.lighting) && { name: "Lighting Systems & Fixtures", level: estimate.lighting },
-        isIncluded(estimate.windows) && { name: "Windows & Glazing Systems", level: estimate.windows },
-        isIncluded(estimate.ceiling) && { name: "Ceiling Design & Finishes", level: estimate.ceiling },
-        isIncluded(estimate.surfaces) && { name: "Wall & Floor Finishes", level: estimate.surfaces },
-      ].filter(Boolean)
+    isIncluded(estimate.plumbing) && { 
+      category: "Core Components",
+      name: "Plumbing & Sanitary", 
+      level: estimate.plumbing 
     },
-    interiors: {
-      title: "Interiors & Furnishings",
-      items: [
-        isIncluded(estimate.fixedFurniture) && { name: "Fixed Furniture & Cabinetry", level: estimate.fixedFurniture },
-        isIncluded(estimate.looseFurniture) && { name: "Loose Furniture", level: estimate.looseFurniture },
-        isIncluded(estimate.furnishings) && { name: "Furnishings & Soft Decor", level: estimate.furnishings },
-        isIncluded(estimate.appliances) && { name: "Appliances & Equipment", level: estimate.appliances },
-        isIncluded(estimate.artefacts) && { name: "Artefacts & Art Pieces", level: estimate.artefacts },
-      ].filter(Boolean)
-    }
-  };
+    isIncluded(estimate.electrical) && { 
+      category: "Core Components",
+      name: "Electrical Systems", 
+      level: estimate.electrical 
+    },
+    isIncluded(estimate.ac) && { 
+      category: "Core Components",
+      name: "AC & HVAC Systems", 
+      level: estimate.ac 
+    },
+    isIncluded(estimate.elevator) && { 
+      category: "Core Components",
+      name: "Elevator/Lift", 
+      level: estimate.elevator 
+    },
+    isIncluded(estimate.buildingEnvelope) && { 
+      category: "Finishes",
+      name: "Building Envelope & Facade", 
+      level: estimate.buildingEnvelope 
+    },
+    isIncluded(estimate.lighting) && { 
+      category: "Finishes",
+      name: "Lighting Systems & Fixtures", 
+      level: estimate.lighting 
+    },
+    isIncluded(estimate.windows) && { 
+      category: "Finishes",
+      name: "Windows & Glazing", 
+      level: estimate.windows 
+    },
+    isIncluded(estimate.ceiling) && { 
+      category: "Finishes",
+      name: "Ceiling Design & Finishes", 
+      level: estimate.ceiling 
+    },
+    isIncluded(estimate.surfaces) && { 
+      category: "Finishes",
+      name: "Wall & Floor Finishes", 
+      level: estimate.surfaces 
+    },
+    isIncluded(estimate.fixedFurniture) && { 
+      category: "Interiors",
+      name: "Fixed Furniture & Cabinetry", 
+      level: estimate.fixedFurniture 
+    },
+    isIncluded(estimate.looseFurniture) && { 
+      category: "Interiors",
+      name: "Loose Furniture", 
+      level: estimate.looseFurniture 
+    },
+    isIncluded(estimate.furnishings) && { 
+      category: "Interiors",
+      name: "Furnishings & Soft Decor", 
+      level: estimate.furnishings 
+    },
+    isIncluded(estimate.appliances) && { 
+      category: "Interiors",
+      name: "Appliances & Equipment", 
+      level: estimate.appliances 
+    },
+    isIncluded(estimate.artefacts) && { 
+      category: "Interiors",
+      name: "Artefacts & Art Pieces", 
+      level: estimate.artefacts 
+    },
+  ].filter(Boolean);
   
   return (
-    <div className="space-y-4 overflow-y-auto overflow-x-hidden max-h-[80vh] px-2 pb-6">
+    <div className="space-y-6 overflow-y-auto overflow-x-hidden max-h-[85vh] px-2 pb-6">
+      {/* Main Summary Card */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="bg-white p-4 rounded-xl border border-vs/10 shadow-sm"
+        className="bg-white p-5 rounded-xl border border-vs/10 shadow-sm space-y-5"
       >
-        <h2 className="text-lg font-bold text-vs-dark text-center mb-3">Estimate Summary</h2>
+        <h2 className="text-xl font-bold text-vs-dark text-center">Your Construction Estimate</h2>
         
-        <div className="grid grid-cols-3 gap-3 mb-3">
+        {/* Project Details */}
+        <div className="grid grid-cols-3 gap-4 pb-4 border-b border-gray-100">
           <div>
             <h3 className="text-xs text-vs-dark/70 mb-1">Location</h3>
-            <p className="font-medium text-sm">{estimate.city}, {estimate.state}</p>
+            <p className="font-semibold text-sm">{estimate.city}, {estimate.state}</p>
           </div>
           <div>
             <h3 className="text-xs text-vs-dark/70 mb-1">Project Type</h3>
-            <p className="font-medium text-sm">{toSentenceCase(estimate.projectType)}</p>
+            <p className="font-semibold text-sm">{toSentenceCase(estimate.projectType)}</p>
           </div>
           <div>
             <h3 className="text-xs text-vs-dark/70 mb-1">Area</h3>
-            <p className="font-medium text-sm">{estimate.area} {estimate.areaUnit}</p>
+            <p className="font-semibold text-sm">{estimate.area.toLocaleString()} {estimate.areaUnit}</p>
           </div>
         </div>
         
-        <div className="border-t border-gray-100 pt-3 mb-3">
-          <div className="text-center">
-            <h3 className="text-xs text-vs-dark/70 mb-1">Estimated Total Cost</h3>
-            <p className="text-2xl font-bold text-vs">{formatCurrency(estimate.totalCost)}</p>
-            <p className="text-xs text-vs-dark/60">
-              ({formatCurrency(Math.round(estimate.totalCost / estimate.area))} per {estimate.areaUnit})
-            </p>
-          </div>
+        {/* Total Cost - Prominent */}
+        <div className="bg-gradient-to-br from-vs/10 to-vs/5 p-6 rounded-xl text-center">
+          <h3 className="text-sm text-vs-dark/70 mb-2">Estimated Total Cost</h3>
+          <p className="text-4xl font-bold text-vs mb-2">{formatCurrency(estimate.totalCost)}</p>
+          <p className="text-sm text-vs-dark/70">
+            {formatCurrency(Math.round(estimate.totalCost / estimate.area))} per {estimate.areaUnit}
+          </p>
         </div>
-        
-        <Tabs defaultValue="breakdown" onValueChange={setActiveTab} className="mt-3">
-          <TabsList className="grid grid-cols-3 mb-3 h-9">
-            <TabsTrigger value="breakdown" className="text-xs">
-              <PieChart className="w-3 h-3 mr-1" />
-              Cost
-            </TabsTrigger>
-            <TabsTrigger value="timeline" className="text-xs">
-              <BarChart3 className="w-3 h-3 mr-1" />
-              Timeline
-            </TabsTrigger>
-            <TabsTrigger value="features" className="text-xs">
-              <CheckCheck className="w-3 h-3 mr-1" />
-              Features
-            </TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="breakdown" className="pt-2">
-            <ImprovedCostVisualization estimate={estimate} />
-          </TabsContent>
-          
-          <TabsContent value="timeline" className="pt-2 space-y-3">
-            <PhaseTimelineCost estimate={estimate} />
-            
-            <div className="grid grid-cols-3 gap-2 pt-3 border-t">
-              <div className="bg-vs/5 p-2 rounded-lg flex flex-col items-center">
-                <Calendar className="text-vs mb-1" size={16} />
-                <span className="text-sm font-bold text-vs">{estimate.timeline.phases.planning}</span>
-                <p className="text-[10px] text-vs-dark/70 text-center">Planning</p>
-              </div>
-              
-              <div className="bg-vs/5 p-2 rounded-lg flex flex-col items-center">
-                <HardHat className="text-vs mb-1" size={16} />
-                <span className="text-sm font-bold text-vs">{estimate.timeline.phases.construction}</span>
-                <p className="text-[10px] text-vs-dark/70 text-center">Construction</p>
-              </div>
-              
-              <div className="bg-vs/5 p-2 rounded-lg flex flex-col items-center">
-                <CheckCheck className="text-vs mb-1" size={16} />
-                <span className="text-sm font-bold text-vs">{estimate.timeline.phases.interiors}</span>
-                <p className="text-[10px] text-vs-dark/70 text-center">Interiors</p>
-              </div>
-            </div>
-            
-            <div className="bg-vs/10 p-2 rounded-lg flex items-center justify-center gap-2">
-              <Flag className="text-vs" size={16} />
-              <div>
-                <span className="text-lg font-bold text-vs">{estimate.timeline.totalMonths}</span>
-                <span className="text-xs text-vs-dark/70 ml-1">Total Months</span>
-              </div>
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="features" className="pt-2">
-            <div className="space-y-3">
-              {Object.entries(includedFeatures).map(([key, section]) => (
-                <div key={key} className="bg-vs/5 rounded-lg p-3">
-                  <h4 className="font-medium text-vs text-sm mb-2">{section.title}</h4>
-                  <ul className="space-y-1.5">
-                    {section.items.length > 0 ? (
-                      section.items.map((item, index) => (
-                        <li key={index} className="flex items-center gap-2 text-xs">
-                          <CheckCheck size={14} className="text-green-600 flex-shrink-0" />
-                          <span className="flex-1">
-                            {item.name}
-                            {item.level && <span className="ml-1 text-[10px] bg-vs/20 text-vs-dark/70 px-1.5 py-0.5 rounded-full">
-                              {formatLevel(item.level)}
-                            </span>}
-                          </span>
-                        </li>
-                      ))
-                    ) : (
-                      <li className="text-xs text-gray-500">No items selected</li>
-                    )}
-                  </ul>
+
+        {/* Cost Breakdown Visualization */}
+        <div>
+          <h3 className="text-base font-semibold text-vs-dark mb-3">Cost Distribution</h3>
+          <ImprovedCostVisualization estimate={estimate} />
+        </div>
+
+        {/* Timeline */}
+        <div>
+          <h3 className="text-base font-semibold text-vs-dark mb-3">Project Timeline & Costs</h3>
+          <PhaseTimelineCost estimate={estimate} />
+        </div>
+
+        {/* Selected Features - List Format */}
+        <div>
+          <h3 className="text-base font-semibold text-vs-dark mb-3">Selected Components & Features</h3>
+          <div className="space-y-3">
+            {pricingList.map((item, index) => (
+              <div 
+                key={index} 
+                className="flex items-start justify-between py-2 px-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                <div className="flex items-start gap-2 flex-1">
+                  <CheckCircle2 size={16} className="text-green-600 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-800">{item.name}</p>
+                    <p className="text-xs text-gray-500">{item.category}</p>
+                  </div>
                 </div>
-              ))}
-            </div>
-          </TabsContent>
-        </Tabs>
+                <span className="text-xs font-semibold text-vs bg-vs/10 px-3 py-1 rounded-full whitespace-nowrap">
+                  {formatLevel(item.level)}
+                </span>
+              </div>
+            ))}
+          </div>
+          
+          {pricingList.length === 0 && (
+            <p className="text-sm text-gray-500 text-center py-4">No components selected</p>
+          )}
+        </div>
+
+        {/* Disclaimer */}
+        <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 text-xs text-gray-700">
+          <p className="font-medium text-orange-800 mb-1">Important Note:</p>
+          <p>This is an indicative estimate based on standard inputs and market rates for {estimate.city}. Final costs may vary based on site conditions, material availability, contractor rates, and specific requirements. For an accurate detailed quote, please contact our team.</p>
+        </div>
       </motion.div>
 
-      {/* Contact CTA Strategy */}
+      {/* Contact CTA */}
       <ContactCTAStrategy 
         estimate={{
           totalCost: estimate.totalCost,
@@ -220,20 +240,20 @@ const ResultsStep = ({ estimate, onReset, onSave }: ResultsStepProps) => {
         }} 
       />
 
-      {/* Action buttons */}
-      <div className="flex flex-wrap gap-3 justify-center pt-2">
+      {/* Action Buttons */}
+      <div className="flex flex-wrap gap-3 justify-center">
         <button 
           onClick={handleShare}
-          className="flex items-center gap-2 px-4 py-2 text-sm border border-vs text-vs rounded-lg hover:bg-vs/5 transition-colors"
+          className="flex items-center gap-2 px-6 py-3 bg-vs hover:bg-vs-light text-white font-semibold rounded-lg transition-colors"
         >
-          <Share size={16} /> Share
+          <Share size={18} /> Share Estimate
         </button>
         
         <button 
           onClick={onReset}
-          className="flex items-center gap-2 px-4 py-2 text-sm border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+          className="flex items-center gap-2 px-6 py-3 border-2 border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-colors"
         >
-          Start Over
+          Start New Estimate
         </button>
       </div>
     </div>
