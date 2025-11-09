@@ -1,4 +1,4 @@
-import { ArchitectFeeRates, ArchitectFeeCalculation, defaultArchitectFeeRates } from '@/types/architectFee';
+import { ArchitectFeeRates, ArchitectFeeCalculation, defaultArchitectFeeRates } from '../types/architectFee';
 
 export function calculateArchitectFee(
   projectType: string,
@@ -13,6 +13,20 @@ export function calculateArchitectFee(
   currency: string = "INR",
   rates: ArchitectFeeRates = defaultArchitectFeeRates
 ): ArchitectFeeCalculation {
+  if (!constructionCost || !area) {
+    return {
+      baseFee: 0,
+      ffeFee: 0,
+      landscapeFee: 0,
+      vizFee: 0,
+      overheadAllocation: 0,
+      profit: 0,
+      tax: 0,
+      totalFee: 0,
+      currency
+    };
+  }
+
   const typ = rates.typologies[projectType] || rates.typologies["Individual House"];
   const clientMult = rates.clientMultipliers[clientType] || 1;
   const complexityMult = rates.complexity[complexity] || 1;
