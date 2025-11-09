@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { Share2, Download, ArrowLeft } from 'lucide-react';
 import { ProjectEstimate } from '@/types/estimator';
 import { calculateArchitectFee } from '@/utils/architectFeeCalculations';
-import { formatCurrency } from '@/utils/formatters.ts';
+import { formatCurrency } from '@/utils/formatters';
 
 interface ResultsStepProps {
   estimate: ProjectEstimate;
