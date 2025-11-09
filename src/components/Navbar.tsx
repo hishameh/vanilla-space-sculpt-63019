@@ -53,6 +53,10 @@ const Navbar = () => {
   }, {
     label: "Contact",
     href: "#contact"
+  }, {
+    label: "Architect Fee",
+    href: "/architect-fee",
+    isRoute: true
   }];
   
   const scrollToSection = (href: string) => {
@@ -160,33 +164,28 @@ const Navbar = () => {
                       visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
                     }}
                   >
-                    <a 
-                      href={item.href} 
-                      className="group text-4xl font-display tracking-tight hover:text-vs transition-colors duration-300" 
-                      onClick={e => {
-                        e.preventDefault();
-                        scrollToSection(item.href);
-                      }}
-                    >
-                      {item.label}
-                    </a>
+                    {item.isRoute ? (
+                      <Link 
+                        to={item.href} 
+                        className="group text-4xl font-display tracking-tight hover:text-vs transition-colors duration-300" 
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        {item.label}
+                      </Link>
+                    ) : (
+                      <a 
+                        href={item.href} 
+                        className="group text-4xl font-display tracking-tight hover:text-vs transition-colors duration-300" 
+                        onClick={e => {
+                          e.preventDefault();
+                          scrollToSection(item.href);
+                        }}
+                      >
+                        {item.label}
+                      </a>
+                    )}
                   </motion.li>
                 ))}
-                <motion.li 
-                  className="w-full text-center"
-                  variants={{
-                    hidden: { opacity: 0, y: 20 },
-                    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
-                  }}
-                >
-                  <Link 
-                    to="/estimator" 
-                    className="group text-4xl font-display tracking-tight hover:text-vs transition-colors duration-300" 
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Estimator
-                  </Link>
-                </motion.li>
               </motion.ul>
             </nav>
           </motion.div>
