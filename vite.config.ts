@@ -6,8 +6,8 @@ import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
-  // 🚨 CRUCIAL: Add the 'base' property with your repo name 🚨
-  base: '/vanilla-space-sculpt-63019/', 
+  // ✅ FIXED: Removed trailing slash
+  base: '/vanilla-space-sculpt-63019', 
 
   server: {
     host: "::",
