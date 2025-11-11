@@ -1,5 +1,6 @@
-
 import { useEffect } from "react";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 import EstimatorWizard from "@/components/EstimatorWizard";
 
 const Index = () => {
@@ -8,20 +9,24 @@ const Index = () => {
   }, []);
   
   return (
-    <div className="min-h-screen bg-background py-4 px-4">
-      <div className="container-custom max-w-5xl mx-auto">
-        <div className="text-center mb-4">
-          <h1 className="text-3xl md:text-4xl font-display mb-2">
-            Project Cost Estimator
-          </h1>
-          <p className="text-muted-foreground max-w-2xl mx-auto text-sm">
-            Get an accurate estimate for your architecture or interior design project in just a few steps.
-          </p>
+    <>
+      <Navbar />
+      <div className="min-h-screen bg-background py-4 px-4 pt-32">
+        <div className="container-custom max-w-5xl mx-auto">
+          <div className="text-center mb-4">
+            <h1 className="text-3xl md:text-4xl font-display mb-2">
+              Project Cost Estimator
+            </h1>
+            <p className="text-muted-foreground max-w-2xl mx-auto text-sm">
+              Get an accurate estimate for your architecture or interior design project in just a few steps.
+            </p>
+          </div>
+          
+          <EstimatorWizard />
         </div>
-        
-        <EstimatorWizard />
       </div>
-    </div>
+      <Footer />
+    </>
   );
 };
 
