@@ -51,30 +51,45 @@ const LOCATION_MULTIPLIERS: Record<string, number> = {
   "default": 0.95
 };
 
-// Component pricing per square meter (in INR)
+// Component pricing per square meter (in INR) - REVISED
 const COMPONENT_PRICING: Record<string, Record<ComponentOption, number>> = {
-  civilQuality: { none: 0, standard: 650, premium: 1100, luxury: 2000 },
-  plumbing: { none: 0, standard: 450, premium: 850, luxury: 1600 },
-  electrical: { none: 0, standard: 400, premium: 750, luxury: 1500 },
-  ac: { none: 0, standard: 900, premium: 1600, luxury: 3000 },
-  elevator: { none: 0, standard: 450, premium: 850, luxury: 1800 },
-  buildingEnvelope: { none: 0, standard: 350, premium: 700, luxury: 1400 },
-  lighting: { none: 0, standard: 300, premium: 650, luxury: 1400 },
-  windows: { none: 0, standard: 400, premium: 800, luxury: 1700 },
-  ceiling: { none: 0, standard: 280, premium: 550, luxury: 1200 },
-  surfaces: { none: 0, standard: 450, premium: 900, luxury: 2000 },
-  fixedFurniture: { none: 0, standard: 850, premium: 1500, luxury: 2800 },
-  looseFurniture: { none: 0, standard: 550, premium: 1100, luxury: 2500 },
-  furnishings: { none: 0, standard: 200, premium: 450, luxury: 1000 },
-  appliances: { none: 0, standard: 350, premium: 750, luxury: 1800 },
-  artefacts: { none: 0, standard: 150, premium: 400, luxury: 1000 },
+  civilQuality: { none: 0, standard: 350, premium: 600, luxury: 1200 },
+  plumbing: { none: 0, standard: 250, premium: 450, luxury: 850 },
+  electrical: { none: 0, standard: 200, premium: 400, luxury: 800 },
+  ac: { none: 0, standard: 450, premium: 800, luxury: 1500 },
+  elevator: { none: 0, standard: 200, premium: 400, luxury: 900 },
+  buildingEnvelope: { none: 0, standard: 200, premium: 400, luxury: 800 },
+  lighting: { none: 0, standard: 150, premium: 350, luxury: 700 },
+  windows: { none: 0, standard: 250, premium: 500, luxury: 1000 },
+  ceiling: { none: 0, standard: 150, premium: 300, luxury: 650 },
+  surfaces: { none: 0, standard: 300, premium: 600, luxury: 1200 },
+  fixedFurniture: { none: 0, standard: 450, premium: 800, luxury: 1500 },
+  looseFurniture: { none: 0, standard: 300, premium: 600, luxury: 1300 },
+  furnishings: { none: 0, standard: 100, premium: 250, luxury: 550 },
+  appliances: { none: 0, standard: 200, premium: 400, luxury: 900 },
+  artefacts: { none: 0, standard: 80, premium: 200, luxury: 500 },
 };
 
-// Base construction cost per square meter (foundation, structure, masonry)
-const BASE_CONSTRUCTION_COST: Record<string, number> = {
-  residential: 1200,
-  commercial: 1500,
-  "mixed-use": 1800,
+// Base construction cost per square meter - REVISED FOR SMALLER PROJECTS
+const getBaseConstructionCost = (projectType: string, areaInSqM: number): number => {
+  // Base rates per sqm
+  const baseRates: Record<string, number> = {
+    residential: 800,
+    commercial: 1000,
+    "mixed-use": 1200,
+  };
+  
+  const baseRate = baseRates[projectType] || baseRates.residential;
+  
+  // Scale factor for smaller projects (reduces cost per sqm for very small projects)
+  let scaleFactor = 1.0;
+  if (areaInSqM < 50) {
+    scaleFactor = 1.15; // 15% premium for very small projects
+  } else if (areaInSqM < 100) {
+    scaleFactor = 1.08; // 8% premium for small projects
+  }
+  
+  return baseRate * scaleFactor;
 };
 
 const initialEstimate: ProjectEstimate = {
@@ -139,13 +154,13 @@ export const EstimatorProvider = ({ children }: { children: React.ReactNode }) =
     let baseMultiplier = 1.0;
     
     if (projectType === "commercial") {
-      baseMultiplier = 1.15;
+      baseMultiplier = 1.10;
     } else if (projectType === "mixed-use") {
-      baseMultiplier = 1.25;
+      baseMultiplier = 1.20;
     }
     
-    // Add complexity adjustment
-    const complexityAdjustment = (complexity - 5) * 0.05;
+    // Add complexity adjustment (reduced impact)
+    const complexityAdjustment = (complexity - 5) * 0.03;
     return baseMultiplier * (1 + complexityAdjustment);
   }, []);
 
@@ -155,12 +170,12 @@ export const EstimatorProvider = ({ children }: { children: React.ReactNode }) =
     areaInSqM: number,
     civilQuality: ComponentOption
   ): number => {
-    const baseCost = BASE_CONSTRUCTION_COST[projectType] || BASE_CONSTRUCTION_COST.residential;
+    const baseCost = getBaseConstructionCost(projectType, areaInSqM);
     
     // Quality multiplier for construction
     let qualityMultiplier = 1.0;
-    if (civilQuality === "premium") qualityMultiplier = 1.6;
-    else if (civilQuality === "luxury") qualityMultiplier = 2.8;
+    if (civilQuality === "premium") qualityMultiplier = 1.4;
+    else if (civilQuality === "luxury") qualityMultiplier = 2.0;
     else if (civilQuality === "none") qualityMultiplier = 0; // Interior-only projects
     
     return baseCost * areaInSqM * qualityMultiplier;
@@ -230,7 +245,7 @@ export const EstimatorProvider = ({ children }: { children: React.ReactNode }) =
     interiorsMonths += Math.floor(areaAddition / 2);
     
     // Complexity adjustment
-    const complexityFactor = 1 + ((complexity - 5) * 0.1);
+    const complexityFactor = 1 + ((complexity - 5) * 0.08);
     constructionMonths = Math.ceil(constructionMonths * complexityFactor);
     interiorsMonths = Math.ceil(interiorsMonths * complexityFactor);
     
@@ -280,27 +295,18 @@ export const EstimatorProvider = ({ children }: { children: React.ReactNode }) =
     );
     subtotal *= projectMultiplier;
 
-    // 6. Add professional fees and overheads (12-15% of subtotal)
-    const professionalFees = subtotal * 0.13;
-    
-    // 7. Add contingency (8-10% of subtotal)
-    const contingency = subtotal * 0.09;
+    // 6. Add contingency (5-8% of subtotal)
+    const contingency = subtotal * 0.06;
 
-    // 8. Calculate total before tax
-    const totalBeforeTax = subtotal + professionalFees + contingency;
+    // 7. Calculate total
+    const totalCost = subtotal + contingency;
 
-    // 9. Add GST (currently 18% on construction services, simplified)
-    const gst = totalBeforeTax * 0.12; // Average effective rate
+    // 8. Calculate phase breakdown
+    const planningCost = totalCost * 0.05;
+    const constructionPhaseCost = constructionCost + (core * 0.6);
+    const interiorsPhaseCost = interiors + finishes + (core * 0.4) + contingency;
 
-    // 10. Final total cost
-    const totalCost = totalBeforeTax + gst;
-
-    // 11. Calculate phase breakdown
-    const planningCost = totalCost * 0.08;
-    const constructionPhaseCost = constructionCost + (core * 0.6) + professionalFees * 0.5;
-    const interiorsPhaseCost = interiors + finishes + (core * 0.4) + professionalFees * 0.5 + contingency + gst;
-
-    // 12. Calculate timeline
+    // 9. Calculate timeline
     const timeline = calculateTimeline(
       currentEstimate.projectType,
       currentEstimate.area,
@@ -418,15 +424,6 @@ export const EstimatorProvider = ({ children }: { children: React.ReactNode }) =
             variant: "destructive",
           });
           return false;
-        }
-        
-        // Warn about quality mismatches
-        if (estimate.civilQuality === "luxury" && 
-            (estimate.plumbing === "standard" || estimate.electrical === "standard")) {
-          toast({
-            title: "Quality Mismatch",
-            description: "Consider upgrading other components to match luxury civil quality for consistency.",
-          });
         }
         break;
     }
