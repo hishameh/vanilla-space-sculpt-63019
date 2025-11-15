@@ -1,5 +1,5 @@
 import React from 'react';
-import { EstimatorProvider, useEstimator } from './contexts/EstimatorContext';
+import { EstimatorProvider, useEstimator } from './context/EstimatorContext';
 
 const EstimatorFlow = () => {
   const { step, estimate, handleNext, handlePrevious, updateEstimate, handleOptionChange } = useEstimator();
