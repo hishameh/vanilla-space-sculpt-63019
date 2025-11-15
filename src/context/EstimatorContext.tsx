@@ -40,84 +40,19 @@ const COMPONENT_DETAILS: Record<string, Record<ComponentOption, string[]>> = {
     premium: ['Premium wiring', 'Modular switches'],
     luxury: ['Armoured cables', 'Designer switches']
   },
-  ac: {
-    none: [],
-    standard: ['Split AC provision'],
-    premium: ['VRF ready', 'Concealed ducting'],
-    luxury: ['VRF system', 'Full concealment']
-  },
-  elevator: {
-    none: [],
-    standard: ['Basic elevator shaft'],
-    premium: ['Enhanced shaft', 'Mid-range lift'],
-    luxury: ['Premium shaft', 'Luxury elevator']
-  },
-  buildingEnvelope: {
-    none: [],
-    standard: ['Basic exterior paint'],
-    premium: ['Textured exterior'],
-    luxury: ['Designer facade']
-  },
-  lighting: {
-    none: [],
-    standard: ['LED fixtures'],
-    premium: ['Designer LED', 'Ambient lighting'],
-    luxury: ['Premium fixtures', 'Smart controls']
-  },
-  windows: {
-    none: [],
-    standard: ['UPVC windows'],
-    premium: ['Premium UPVC', 'Tinted glass'],
-    luxury: ['Aluminium', 'Double glazing']
-  },
-  ceiling: {
-    none: [],
-    standard: ['Gypsum board'],
-    premium: ['Designer gypsum'],
-    luxury: ['Premium materials', 'Complex patterns']
-  },
-  surfaces: {
-    none: [],
-    standard: ['Vitrified tiles'],
-    premium: ['Premium tiles', 'Italian marble'],
-    luxury: ['Imported tiles', 'Premium marble']
-  },
-  fixedFurniture: {
-    none: [],
-    standard: ['Plywood cabinets'],
-    premium: ['BWR plywood', 'Premium laminate'],
-    luxury: ['Marine plywood', 'Veneer finish']
-  },
-  looseFurniture: {
-    none: [],
-    standard: ['Essential furniture'],
-    premium: ['Designer furniture'],
-    luxury: ['Premium furniture', 'Custom design']
-  },
-  furnishings: {
-    none: [],
-    standard: ['Basic curtains'],
-    premium: ['Designer curtains'],
-    luxury: ['Premium drapes', 'Automated blinds']
-  },
-  appliances: {
-    none: [],
-    standard: ['Basic appliances'],
-    premium: ['Mid-range appliances'],
-    luxury: ['Premium appliances', 'Built-in']
-  },
-  artefacts: {
-    none: [],
-    standard: ['Basic decor'],
-    premium: ['Designer decor'],
-    luxury: ['Premium decor', 'Original artwork']
-  },
-  landscape: {
-    none: [],
-    standard: ['Basic landscaping'],
-    premium: ['Designer landscape'],
-    luxury: ['Premium landscape', 'Water features']
-  },
+  ac: { none: [], standard: ['Split AC'], premium: ['VRF ready'], luxury: ['VRF system'] },
+  elevator: { none: [], standard: ['Basic shaft'], premium: ['Enhanced shaft'], luxury: ['Premium shaft'] },
+  buildingEnvelope: { none: [], standard: ['Basic paint'], premium: ['Textured exterior'], luxury: ['Designer facade'] },
+  lighting: { none: [], standard: ['LED fixtures'], premium: ['Designer LED'], luxury: ['Premium fixtures'] },
+  windows: { none: [], standard: ['UPVC windows'], premium: ['Premium UPVC'], luxury: ['Aluminium'] },
+  ceiling: { none: [], standard: ['Gypsum board'], premium: ['Designer gypsum'], luxury: ['Premium materials'] },
+  surfaces: { none: [], standard: ['Vitrified tiles'], premium: ['Premium tiles'], luxury: ['Imported tiles'] },
+  fixedFurniture: { none: [], standard: ['Plywood cabinets'], premium: ['BWR plywood'], luxury: ['Marine plywood'] },
+  looseFurniture: { none: [], standard: ['Essential furniture'], premium: ['Designer furniture'], luxury: ['Premium furniture'] },
+  furnishings: { none: [], standard: ['Basic curtains'], premium: ['Designer curtains'], luxury: ['Premium drapes'] },
+  appliances: { none: [], standard: ['Basic appliances'], premium: ['Mid-range'], luxury: ['Premium'] },
+  artefacts: { none: [], standard: ['Basic decor'], premium: ['Designer decor'], luxury: ['Premium decor'] },
+  landscape: { none: [], standard: ['Basic landscaping'], premium: ['Designer landscape'], luxury: ['Premium landscape'] },
 };
 
 export const PROJECT_TYPES = {
@@ -233,26 +168,9 @@ const initialEstimate: ProjectEstimate = {
   artefacts: 'none',
   landscape: 'none',
   totalCost: 0,
-  categoryBreakdown: {
-    construction: 0,
-    core: 0,
-    finishes: 0,
-    interiors: 0,
-    landscape: 0,
-  },
-  phaseBreakdown: {
-    planning: 0,
-    construction: 0,
-    interiors: 0,
-  },
-  timeline: {
-    totalMonths: 0,
-    phases: {
-      planning: 0,
-      construction: 0,
-      interiors: 0,
-    },
-  },
+  categoryBreakdown: { construction: 0, core: 0, finishes: 0, interiors: 0, landscape: 0 },
+  phaseBreakdown: { planning: 0, construction: 0, interiors: 0 },
+  timeline: { totalMonths: 0, phases: { planning: 0, construction: 0, interiors: 0 } },
   componentCosts: {},
 };
 
@@ -271,19 +189,12 @@ export const EstimatorProvider: React.FC<{ children: ReactNode }> = ({ children 
   };
 
   const calculateRealTimeCost = () => {
-    const areaInSqM = estimate.areaUnit === 'sqft' 
-      ? estimate.area * 0.092903 
-      : estimate.area;
-
+    const areaInSqM = estimate.areaUnit === 'sqft' ? estimate.area * 0.092903 : estimate.area;
     const projectConfig = PROJECT_TYPES[estimate.projectType as keyof typeof PROJECT_TYPES];
     
     let totalCost = 0;
     const componentCosts: Record<string, number> = {};
-    let constructionCost = 0;
-    let coreCost = 0;
-    let finishesCost = 0;
-    let interiorsCost = 0;
-    let landscapeCost = 0;
+    let constructionCost = 0, coreCost = 0, finishesCost = 0, interiorsCost = 0, landscapeCost = 0;
 
     Object.keys(COMPONENT_PRICING).forEach(comp => {
       if (!projectConfig?.excludes.includes(comp)) {
@@ -293,7 +204,6 @@ export const EstimatorProvider: React.FC<{ children: ReactNode }> = ({ children 
         if (cost > 0) {
           componentCosts[comp] = cost;
           totalCost += cost;
-
           if (comp === 'civilQuality') constructionCost += cost;
           else if (['plumbing', 'electrical', 'ac', 'elevator'].includes(comp)) coreCost += cost;
           else if (['buildingEnvelope', 'lighting', 'windows', 'ceiling', 'surfaces'].includes(comp)) finishesCost += cost;
@@ -312,75 +222,27 @@ export const EstimatorProvider: React.FC<{ children: ReactNode }> = ({ children 
       ...prev,
       totalCost,
       componentCosts,
-      categoryBreakdown: {
-        construction: constructionCost,
-        core: coreCost,
-        finishes: finishesCost,
-        interiors: interiorsCost,
-        landscape: landscapeCost,
-      },
-      phaseBreakdown: {
-        planning: totalCost * 0.10,
-        construction: constructionCost + coreCost,
-        interiors: finishesCost + interiorsCost + landscapeCost,
-      },
-      timeline: {
-        totalMonths: planningMonths + constructionMonths + interiorsMonths,
-        phases: {
-          planning: planningMonths,
-          construction: constructionMonths,
-          interiors: interiorsMonths,
-        },
-      },
+      categoryBreakdown: { construction: constructionCost, core: coreCost, finishes: finishesCost, interiors: interiorsCost, landscape: landscapeCost },
+      phaseBreakdown: { planning: totalCost * 0.10, construction: constructionCost + coreCost, interiors: finishesCost + interiorsCost + landscapeCost },
+      timeline: { totalMonths: planningMonths + constructionMonths + interiorsMonths, phases: { planning: planningMonths, construction: constructionMonths, interiors: interiorsMonths } },
     }));
   };
 
   useEffect(() => {
-    if (step >= 2) {
-      calculateRealTimeCost();
-    }
+    if (step >= 2) calculateRealTimeCost();
   }, [estimate.area, estimate.civilQuality, estimate.plumbing, step]);
 
-  const handleNext = () => {
-    if (step < totalSteps) {
-      setStep(step + 1);
-    }
-  };
-
-  const handlePrevious = () => {
-    if (step > 1) {
-      setStep(step - 1);
-    }
-  };
-
-  const handleReset = () => {
-    setEstimate(initialEstimate);
-    setStep(1);
-  };
-
-  const handleSaveEstimate = () => {
-    console.log('Saving estimate:', estimate);
-  };
+  const handleNext = () => { if (step < totalSteps) setStep(step + 1); };
+  const handlePrevious = () => { if (step > 1) setStep(step - 1); };
+  const handleReset = () => { setEstimate(initialEstimate); setStep(1); };
+  const handleSaveEstimate = () => { console.log('Saving estimate:', estimate); };
 
   return (
-    <EstimatorContext.Provider
-      value={{
-        step,
-        totalSteps,
-        estimate,
-        isCalculating,
-        componentDetails: COMPONENT_DETAILS,
-        projectTypes: PROJECT_TYPES,
-        updateEstimate,
-        handleNext,
-        handlePrevious,
-        handleReset,
-        handleSaveEstimate,
-        handleOptionChange,
-        setStep,
-        calculateRealTimeCost,
-      }}
-    >
+    <EstimatorContext.Provider value={{
+      step, totalSteps, estimate, isCalculating, componentDetails: COMPONENT_DETAILS,
+      projectTypes: PROJECT_TYPES, updateEstimate, handleNext, handlePrevious, handleReset,
+      handleSaveEstimate, handleOptionChange, setStep, calculateRealTimeCost,
+    }}>
       {children}
     </EstimatorContext.Provider>
   );
