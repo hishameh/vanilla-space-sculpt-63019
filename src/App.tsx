@@ -1,5 +1,5 @@
 import React from 'react';
-import { EstimatorProvider, useEstimator } from './contexts/EstimatorContext';
+import { EstimatorContext } from './contexts/EstimatorContext'; // Ensure the name and path are correct
 import ProjectTypeSelector from './components/ProjectTypeSelector';
 import ComponentSelector from './components/ComponentSelector';
 import DetailedBreakdown from './components/DetailedBreakdown';
