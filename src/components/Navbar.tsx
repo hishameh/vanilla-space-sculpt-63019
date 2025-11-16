@@ -4,10 +4,7 @@ import { cn } from "@/lib/utils";
 import { X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-// Add to your navigation links
-<Link to="/architect-fee" className="nav-link">
-  Architect Fee Calculator
-</Link>
+
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -47,21 +44,20 @@ const Navbar = () => {
     };
   }, []);
   
- const navItems = [
-  { label: "Work", href: "#projects" },
-  { label: "About", href: "#about" },
-  { label: "Contact", href: "#contact" },
-  { 
-    label: "Estimator", 
-    href: "/estimator",
-    isRoute: true 
-  },
-  { 
-    label: "Architect Fee", 
+  const navItems = [{
+    label: "Work",
+    href: "#projects"
+  }, {
+    label: "About",
+    href: "#about"
+  }, {
+    label: "Contact",
+    href: "#contact"
+  }, {
+    label: "Architect Fee",
     href: "/architect-fee",
-    isRoute: true 
-  }
-];
+    isRoute: true
+  }];
   
   const scrollToSection = (href: string) => {
     const element = document.getElementById(href.substring(1));

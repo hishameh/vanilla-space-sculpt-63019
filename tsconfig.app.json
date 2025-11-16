@@ -18,11 +18,9 @@
     "strict": false,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-    "noFallthroughCasesInSwitch": true,
     "noImplicitAny": false,
-    "strictNullChecks": false,
+    "noFallthroughCasesInSwitch": false,
 
-    /* Paths */
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
