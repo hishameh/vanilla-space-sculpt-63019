@@ -1,7 +1,12 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Share2, Download, ArrowLeft, CheckCircle } from 'lucide-react';
-import { ProjectEstimate } from '@/types/estimator';
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { ProjectEstimate, ComponentOption } from "@/types/estimator";
+import { Share, CheckCircle2, Download } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import ImprovedCostVisualization from "./ImprovedCostVisualization";
+import PhaseTimelineCost from "./PhaseTimelineCost";
+import ContactCTAStrategy from "./ContactCTAStrategy";
+import { generateEstimatePDF } from "@/utils/pdfExport";
 
 interface ResultsStepProps {
   estimate: ProjectEstimate;
@@ -9,322 +14,264 @@ interface ResultsStepProps {
   onSave: () => void;
 }
 
-const ResultsStep: React.FC<ResultsStepProps> = ({ estimate, onReset, onSave }) => {
+const ResultsStep = ({ estimate, onReset, onSave }: ResultsStepProps) => {
+  const { toast } = useToast();
+  
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
       currency: 'INR',
-      maximumFractionDigits: 0
+      maximumFractionDigits: 0,
+      minimumFractionDigits: 0
     }).format(amount).replace('₹', '₹ ');
   };
-
-  // Simplified architect fee - 8% of construction cost
-  const professionalFee = Math.round(estimate.totalCost * 0.08);
-  const costPerSqft = Math.round(estimate.totalCost / estimate.area);
-  const feePerSqft = Math.round(professionalFee / estimate.area);
-  const totalWithFee = estimate.totalCost + professionalFee;
-  const totalPerSqft = Math.round(totalWithFee / estimate.area);
-
-  const handleShare = async () => {
-    const shareText = `Project Estimate - ${estimate.city}\n${estimate.area} ${estimate.areaUnit} ${estimate.projectType}\nConstruction: ${formatCurrency(estimate.totalCost)}\nProfessional Fee: ${formatCurrency(professionalFee)}\nTotal: ${formatCurrency(totalWithFee)}`;
-
-    try {
-      if (navigator.share) {
-        await navigator.share({ title: 'Project Estimate', text: shareText });
-      } else {
-        navigator.clipboard.writeText(shareText);
-        alert('Copied to clipboard!');
-      }
-    } catch (error) {
-      console.log('Share failed');
+  
+  const toSentenceCase = (s: string) => s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : s;
+  
+  const handleShare = () => {
+    const shareText = `My Construction Estimate:\n\n` +
+      `Location: ${estimate.city}, ${estimate.state}\n` +
+      `Project: ${toSentenceCase(estimate.projectType)}\n` +
+      `Area: ${estimate.area} ${estimate.areaUnit}\n` +
+      `Total Cost: ${formatCurrency(estimate.totalCost)}\n` +
+      `Per ${estimate.areaUnit}: ${formatCurrency(Math.round(estimate.totalCost / estimate.area))}\n\n` +
+      `Get your estimate at: ${window.location.origin}`;
+    
+    if (navigator.share) {
+      navigator.share({
+        title: 'My Construction Cost Estimate',
+        text: shareText,
+        url: window.location.href,
+      }).catch((error) => console.log('Error sharing', error));
+    } else {
+      // Fallback: Copy to clipboard
+      navigator.clipboard.writeText(shareText).then(() => {
+        toast({
+          title: "Copied to clipboard!",
+          description: "Share text has been copied to your clipboard."
+        });
+      });
     }
   };
 
+  const handleDownloadPDF = () => {
+    try {
+      generateEstimatePDF(estimate);
+      toast({
+        title: "PDF Generated!",
+        description: "Your estimate has been downloaded as a PDF."
+      });
+    } catch (error) {
+      toast({
+        title: "Error generating PDF",
+        description: "There was a problem creating your PDF. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Helper to check if component is included
+  const isIncluded = (value: string | undefined): boolean => {
+    return !!(value && value !== 'none' && value !== '');
+  };
+
+  // Helper to format level label
+  const formatLevel = (level: ComponentOption) => {
+    if (level === 'standard') return 'Standard';
+    if (level === 'premium') return 'Premium';
+    if (level === 'luxury') return 'Luxury';
+    return level;
+  };
+
+  // Create pricing list for all selected components
   const pricingList = [
-    { label: 'Civil Quality', value: estimate.civilQuality },
-    { label: 'Plumbing', value: estimate.plumbing },
-    { label: 'Electrical', value: estimate.electrical },
-    { label: 'AC', value: estimate.ac },
-    { label: 'Elevator', value: estimate.elevator },
-    { label: 'Building Envelope', value: estimate.buildingEnvelope },
-    { label: 'Lighting', value: estimate.lighting },
-    { label: 'Windows', value: estimate.windows },
-    { label: 'Ceiling', value: estimate.ceiling },
-    { label: 'Surfaces', value: estimate.surfaces },
-    { label: 'Fixed Furniture', value: estimate.fixedFurniture },
-    { label: 'Loose Furniture', value: estimate.looseFurniture },
-    { label: 'Furnishings', value: estimate.furnishings },
-    { label: 'Appliances', value: estimate.appliances },
-    { label: 'Artefacts', value: estimate.artefacts },
-  ].filter(item => item.value !== 'none');
-
+    isIncluded(estimate.civilQuality) && { 
+      category: "Core Components",
+      name: "Quality of Construction - Civil Materials", 
+      level: estimate.civilQuality 
+    },
+    isIncluded(estimate.plumbing) && { 
+      category: "Core Components",
+      name: "Plumbing & Sanitary", 
+      level: estimate.plumbing 
+    },
+    isIncluded(estimate.electrical) && { 
+      category: "Core Components",
+      name: "Electrical Systems", 
+      level: estimate.electrical 
+    },
+    isIncluded(estimate.ac) && { 
+      category: "Core Components",
+      name: "AC & HVAC Systems", 
+      level: estimate.ac 
+    },
+    isIncluded(estimate.elevator) && { 
+      category: "Core Components",
+      name: "Elevator/Lift", 
+      level: estimate.elevator 
+    },
+    isIncluded(estimate.buildingEnvelope) && { 
+      category: "Finishes",
+      name: "Building Envelope & Facade", 
+      level: estimate.buildingEnvelope 
+    },
+    isIncluded(estimate.lighting) && { 
+      category: "Finishes",
+      name: "Lighting Systems & Fixtures", 
+      level: estimate.lighting 
+    },
+    isIncluded(estimate.windows) && { 
+      category: "Finishes",
+      name: "Windows & Glazing", 
+      level: estimate.windows 
+    },
+    isIncluded(estimate.ceiling) && { 
+      category: "Finishes",
+      name: "Ceiling Design & Finishes", 
+      level: estimate.ceiling 
+    },
+    isIncluded(estimate.surfaces) && { 
+      category: "Finishes",
+      name: "Wall & Floor Finishes", 
+      level: estimate.surfaces 
+    },
+    isIncluded(estimate.fixedFurniture) && { 
+      category: "Interiors",
+      name: "Fixed Furniture & Cabinetry", 
+      level: estimate.fixedFurniture 
+    },
+    isIncluded(estimate.looseFurniture) && { 
+      category: "Interiors",
+      name: "Loose Furniture", 
+      level: estimate.looseFurniture 
+    },
+    isIncluded(estimate.furnishings) && { 
+      category: "Interiors",
+      name: "Furnishings & Soft Decor", 
+      level: estimate.furnishings 
+    },
+    isIncluded(estimate.appliances) && { 
+      category: "Interiors",
+      name: "Appliances & Equipment", 
+      level: estimate.appliances 
+    },
+    isIncluded(estimate.artefacts) && { 
+      category: "Interiors",
+      name: "Artefacts & Art Pieces", 
+      level: estimate.artefacts 
+    },
+  ].filter(Boolean);
+  
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="space-y-6"
-    >
-      {/* Project Summary Header */}
-      <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-vs-dark mb-2">Your Complete Project Estimate</h2>
-        <p className="text-sm text-muted-foreground">
-          {estimate.area.toLocaleString()} {estimate.areaUnit} • {estimate.projectType} • {estimate.city}, {estimate.state}
-        </p>
-      </div>
-
-      {/* Main Cost Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Construction Cost */}
-        <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl border border-blue-200">
-          <div className="flex justify-between items-start mb-3">
-            <h3 className="text-sm font-semibold text-blue-900">Construction Cost</h3>
-            <span className="text-xs bg-blue-200 text-blue-900 px-2 py-1 rounded-full font-medium">
-              {formatCurrency(costPerSqft)}/{estimate.areaUnit}
-            </span>
+    <div className="space-y-6 overflow-y-auto overflow-x-hidden max-h-[85vh] px-2 pb-6">
+      {/* Main Summary Card */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="bg-white p-5 rounded-xl border border-vs/10 shadow-sm space-y-5"
+      >
+        <h2 className="text-xl font-bold text-vs-dark text-center">Your Construction Estimate</h2>
+        
+        {/* Project Details */}
+        <div className="grid grid-cols-3 gap-4 pb-4 border-b border-gray-100">
+          <div>
+            <h3 className="text-xs text-vs-dark/70 mb-1">Location</h3>
+            <p className="font-semibold text-sm">{estimate.city}, {estimate.state}</p>
           </div>
-          <p className="text-3xl font-bold text-blue-900 mb-2">
-            {formatCurrency(estimate.totalCost)}
+          <div>
+            <h3 className="text-xs text-vs-dark/70 mb-1">Project Type</h3>
+            <p className="font-semibold text-sm">{toSentenceCase(estimate.projectType)}</p>
+          </div>
+          <div>
+            <h3 className="text-xs text-vs-dark/70 mb-1">Area</h3>
+            <p className="font-semibold text-sm">{estimate.area.toLocaleString()} {estimate.areaUnit}</p>
+          </div>
+        </div>
+        
+        {/* Total Cost - Prominent */}
+        <div className="bg-gradient-to-br from-vs/10 to-vs/5 p-6 rounded-xl text-center">
+          <h3 className="text-sm text-vs-dark/70 mb-2">Estimated Total Cost</h3>
+          <p className="text-4xl font-bold text-vs mb-2">{formatCurrency(estimate.totalCost)}</p>
+          <p className="text-sm text-vs-dark/70">
+            {formatCurrency(Math.round(estimate.totalCost / estimate.area))} per {estimate.areaUnit}
           </p>
-          <p className="text-xs text-blue-700">Complete construction including materials, labor & execution</p>
         </div>
 
-        {/* Professional Fee */}
-        <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-xl border border-purple-200">
-          <div className="flex justify-between items-start mb-3">
-            <h3 className="text-sm font-semibold text-purple-900">Architecture Services</h3>
-            <span className="text-xs bg-purple-200 text-purple-900 px-2 py-1 rounded-full font-medium">
-              {formatCurrency(feePerSqft)}/{estimate.areaUnit}
-            </span>
-          </div>
-          <p className="text-3xl font-bold text-purple-900 mb-2">
-            {formatCurrency(professionalFee)}
-          </p>
-          <p className="text-xs text-purple-700">Design, drawings, approvals & supervision (8% of construction)</p>
-        </div>
-      </div>
-
-      {/* Total Investment - Highlighted */}
-      <div className="bg-gradient-to-br from-vs/10 to-vs/5 p-8 rounded-2xl text-center border-2 border-vs/30 shadow-lg">
-        <h3 className="text-sm text-vs-dark/70 mb-2 uppercase tracking-wide">Total Project Investment</h3>
-        <p className="text-5xl font-bold text-vs mb-4">
-          {formatCurrency(totalWithFee)}
-        </p>
-        <div className="flex items-center justify-center gap-6 text-sm flex-wrap">
-          <div className="bg-white px-4 py-2 rounded-lg">
-            <span className="text-vs-dark/70">Per {estimate.areaUnit}: </span>
-            <span className="font-bold text-vs">{formatCurrency(totalPerSqft)}</span>
-          </div>
-          <div className="bg-white px-4 py-2 rounded-lg">
-            <span className="text-vs-dark/70">Timeline: </span>
-            <span className="font-bold text-vs">{estimate.timeline.totalMonths} months</span>
-          </div>
-        </div>
-      </div>
-
-      {/* What's Included - Transparent Pricing */}
-      <div className="glass-card border border-primary/5 rounded-2xl p-6">
-        <h3 className="text-lg font-semibold text-vs-dark mb-4">Complete Transparent Pricing</h3>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          {/* Construction Package */}
-          <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-            <h4 className="font-semibold text-blue-900 mb-2 text-sm">Construction Package</h4>
-            <p className="text-lg font-bold text-blue-900 mb-3">{formatCurrency(estimate.totalCost)}</p>
-            <ul className="text-xs text-blue-700 space-y-1.5">
-              <li className="flex items-start gap-1">
-                <CheckCircle size={12} className="mt-0.5 flex-shrink-0" />
-                <span>Complete structural work</span>
-              </li>
-              <li className="flex items-start gap-1">
-                <CheckCircle size={12} className="mt-0.5 flex-shrink-0" />
-                <span>All systems (plumbing, electrical, HVAC)</span>
-              </li>
-              <li className="flex items-start gap-1">
-                <CheckCircle size={12} className="mt-0.5 flex-shrink-0" />
-                <span>Quality finishes & fixtures</span>
-              </li>
-              <li className="flex items-start gap-1">
-                <CheckCircle size={12} className="mt-0.5 flex-shrink-0" />
-                <span>Complete interior fit-outs</span>
-              </li>
-            </ul>
-          </div>
-
-          {/* Architecture Services */}
-          <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
-            <h4 className="font-semibold text-purple-900 mb-2 text-sm">Architecture Services</h4>
-            <p className="text-lg font-bold text-purple-900 mb-3">{formatCurrency(professionalFee)}</p>
-            <ul className="text-xs text-purple-700 space-y-1.5">
-              <li className="flex items-start gap-1">
-                <CheckCircle size={12} className="mt-0.5 flex-shrink-0" />
-                <span>Complete design & drawings</span>
-              </li>
-              <li className="flex items-start gap-1">
-                <CheckCircle size={12} className="mt-0.5 flex-shrink-0" />
-                <span>3D visualizations & renders</span>
-              </li>
-              <li className="flex items-start gap-1">
-                <CheckCircle size={12} className="mt-0.5 flex-shrink-0" />
-                <span>Full site supervision</span>
-              </li>
-              <li className="flex items-start gap-1">
-                <CheckCircle size={12} className="mt-0.5 flex-shrink-0" />
-                <span>Authority approvals & liaison</span>
-              </li>
-            </ul>
-          </div>
-
-          {/* Value Proposition */}
-          <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-            <h4 className="font-semibold text-green-900 mb-2 text-sm">Our Promise</h4>
-            <p className="text-lg font-bold text-green-900 mb-3">Zero Hidden Costs</p>
-            <ul className="text-xs text-green-700 space-y-1.5">
-              <li className="flex items-start gap-1">
-                <CheckCircle size={12} className="mt-0.5 flex-shrink-0" />
-                <span>Fixed transparent pricing</span>
-              </li>
-              <li className="flex items-start gap-1">
-                <CheckCircle size={12} className="mt-0.5 flex-shrink-0" />
-                <span>Detailed itemized breakdown</span>
-              </li>
-              <li className="flex items-start gap-1">
-                <CheckCircle size={12} className="mt-0.5 flex-shrink-0" />
-                <span>Quality assurance included</span>
-              </li>
-              <li className="flex items-start gap-1">
-                <CheckCircle size={12} className="mt-0.5 flex-shrink-0" />
-                <span>Post-completion warranty</span>
-              </li>
-            </ul>
-          </div>
+        {/* Cost Breakdown Visualization */}
+        <div>
+          <h3 className="text-base font-semibold text-vs-dark mb-3">Cost Distribution</h3>
+          <ImprovedCostVisualization estimate={estimate} />
         </div>
 
-        {/* Cost Distribution Bar */}
-        <div className="space-y-3">
-          <div className="flex justify-between text-sm font-medium">
-            <span>Investment Breakdown</span>
-            <span>{formatCurrency(totalWithFee)}</span>
-          </div>
-          <div className="h-10 bg-gray-100 rounded-full overflow-hidden flex text-xs font-medium text-white">
-            <div
-              className="bg-blue-600 flex items-center justify-center"
-              style={{ width: `${(estimate.categoryBreakdown.construction / estimate.totalCost * 100)}%` }}
-            >
-              Structure {(estimate.categoryBreakdown.construction / estimate.totalCost * 100).toFixed(0)}%
-            </div>
-            <div
-              className="bg-green-600 flex items-center justify-center"
-              style={{ width: `${(estimate.categoryBreakdown.core / estimate.totalCost * 100)}%` }}
-            >
-              Systems {(estimate.categoryBreakdown.core / estimate.totalCost * 100).toFixed(0)}%
-            </div>
-            <div
-              className="bg-yellow-600 flex items-center justify-center"
-              style={{ width: `${(estimate.categoryBreakdown.finishes / estimate.totalCost * 100)}%` }}
-            >
-              Finishes {(estimate.categoryBreakdown.finishes / estimate.totalCost * 100).toFixed(0)}%
-            </div>
-            <div
-              className="bg-purple-600 flex items-center justify-center"
-              style={{ width: `${(estimate.categoryBreakdown.interiors / estimate.totalCost * 100)}%` }}
-            >
-              Interiors {(estimate.categoryBreakdown.interiors / estimate.totalCost * 100).toFixed(0)}%
-            </div>
-            <div
-              className="bg-indigo-600 flex items-center justify-center"
-              style={{ width: `${(professionalFee / totalWithFee * 100)}%` }}
-            >
-              Services {(professionalFee / totalWithFee * 100).toFixed(0)}%
-            </div>
-          </div>
+        {/* Timeline */}
+        <div>
+          <h3 className="text-base font-semibold text-vs-dark mb-3">Project Timeline & Costs</h3>
+          <PhaseTimelineCost estimate={estimate} />
         </div>
-      </div>
 
-      {/* Timeline Visualization */}
-      <div className="glass-card border border-primary/5 rounded-2xl p-6">
-        <h3 className="text-lg font-semibold text-vs-dark mb-4">Project Timeline</h3>
-        <div className="space-y-4">
-          {[
-            { phase: 'Planning & Design', duration: estimate.timeline.phases.planning, color: 'blue' },
-            { phase: 'Construction', duration: estimate.timeline.phases.construction, color: 'vs' },
-            { phase: 'Finishing & Interiors', duration: estimate.timeline.phases.interiors, color: 'green' }
-          ].map((phase, idx) => (
-            <div key={idx}>
-              <div className="flex justify-between mb-2 text-sm">
-                <span className="font-medium">{phase.phase}</span>
-                <span className="text-muted-foreground">{phase.duration} months</span>
+        {/* Selected Features - List Format */}
+        <div>
+          <h3 className="text-base font-semibold text-vs-dark mb-3">Selected Components & Features</h3>
+          <div className="space-y-3">
+            {pricingList.map((item, index) => (
+              <div 
+                key={index} 
+                className="flex items-start justify-between py-2 px-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                <div className="flex items-start gap-2 flex-1">
+                  <CheckCircle2 size={16} className="text-green-600 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-800">{item.name}</p>
+                    <p className="text-xs text-gray-500">{item.category}</p>
+                  </div>
+                </div>
+                <span className="text-xs font-semibold text-vs bg-vs/10 px-3 py-1 rounded-full whitespace-nowrap">
+                  {formatLevel(item.level)}
+                </span>
               </div>
-              <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
-                <div
-                  className={`h-full bg-${phase.color}-500 rounded-full`}
-                  style={{
-                    width: `${(phase.duration / estimate.timeline.totalMonths * 100)}%`,
-                    backgroundColor: phase.color === 'vs' ? '#7A1E1F' : undefined
-                  }}
-                />
-              </div>
-            </div>
-          ))}
-          <div className="text-center pt-2 text-sm font-semibold">
-            Total Duration: {estimate.timeline.totalMonths} months ({Math.round(estimate.timeline.totalMonths * 30)} days)
+            ))}
           </div>
+          
+          {pricingList.length === 0 && (
+            <p className="text-sm text-gray-500 text-center py-4">No components selected</p>
+          )}
         </div>
-      </div>
 
-      {/* Selected Components */}
-      <div className="glass-card border border-primary/5 rounded-2xl p-6">
-        <h3 className="text-lg font-semibold text-vs-dark mb-4">Your Selected Specifications</h3>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-          {pricingList.map((item, index) => (
-            <div
-              key={index}
-              className="flex justify-between items-center p-3 bg-gradient-to-r from-white to-gray-50 rounded-lg border border-gray-200 hover:shadow-md transition-shadow"
-            >
-              <span className="text-xs font-medium">{item.label}</span>
-              <span className="text-xs font-bold capitalize bg-vs/10 text-vs px-2 py-1 rounded">{item.value}</span>
-            </div>
-          ))}
+        {/* Disclaimer */}
+        <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 text-xs text-gray-700">
+          <p className="font-medium text-orange-800 mb-1">Important Note:</p>
+          <p>This is an indicative estimate based on standard inputs and market rates for {estimate.city}. Final costs may vary based on site conditions, material availability, contractor rates, and specific requirements. For an accurate detailed quote, please contact our team.</p>
         </div>
-      </div>
+      </motion.div>
 
-      {/* Important Disclaimer */}
-      <div className="bg-orange-50 border-l-4 border-orange-400 rounded-lg p-4 text-sm">
-        <p className="font-semibold text-orange-800 mb-2">📋 Important Information:</p>
-        <ul className="list-disc pl-5 space-y-1 text-orange-700">
-          <li>This is an <strong>indicative estimate</strong> based on {estimate.city} market rates</li>
-          <li>Final costs may vary ±10% based on site conditions & material availability</li>
-          <li>Professional fee of <strong>8%</strong> covers complete architectural services</li>
-          <li>Timeline is approximate and subject to approvals & weather conditions</li>
-          <li><strong>Contact us for a detailed fixed-price quotation</strong></li>
-        </ul>
-      </div>
+      {/* Contact CTA */}
+      <ContactCTAStrategy estimate={estimate} />
 
       {/* Action Buttons */}
-      <div className="flex flex-wrap gap-3 justify-center pt-4">
-        <button
+      <div className="flex flex-wrap gap-3 justify-center">
+        <button 
+          onClick={handleDownloadPDF}
+          className="flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors"
+        >
+          <Download size={18} /> Download PDF
+        </button>
+
+        <button 
           onClick={handleShare}
-          className="flex items-center gap-2 px-6 py-3 bg-vs hover:bg-vs-light text-white font-semibold rounded-lg transition-colors shadow-lg"
+          className="flex items-center gap-2 px-6 py-3 bg-vs hover:bg-vs-light text-white font-semibold rounded-lg transition-colors"
         >
-          <Share2 size={18} />
-          Share Estimate
+          <Share size={18} /> Share Estimate
         </button>
-        <button
-          onClick={onSave}
-          className="flex items-center gap-2 px-6 py-3 bg-vs hover:bg-vs-light text-white font-semibold rounded-lg transition-colors shadow-lg"
-        >
-          <Download size={18} />
-          Download PDF
-        </button>
-        <button
+        
+        <button 
           onClick={onReset}
-          className="flex items-center gap-2 px-6 py-3 border-2 border-vs text-vs hover:bg-vs/5 font-semibold rounded-lg transition-colors"
+          className="flex items-center gap-2 px-6 py-3 border-2 border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-colors"
         >
-          <ArrowLeft size={18} />
-          New Estimate
+          Start New Estimate
         </button>
       </div>
-    </motion.div>
+    </div>
   );
 };
 
