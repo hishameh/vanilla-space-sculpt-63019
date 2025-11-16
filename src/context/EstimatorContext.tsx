@@ -56,6 +56,18 @@ const COMPONENT_DETAILS: Record<string, Record<ComponentOption, string[]>> = {
 };
 
 export const PROJECT_TYPES = {
+  'interior-only': {
+    label: 'Interior Only',
+    description: 'Interior design and furnishing without construction',
+    excludes: ['civilQuality', 'buildingEnvelope', 'landscape'],
+    baseRate: 0,
+  },
+  'core-shell': {
+    label: 'Core & Shell',
+    description: 'Basic construction with MEP systems',
+    excludes: ['fixedFurniture', 'looseFurniture', 'furnishings', 'appliances', 'artefacts', 'landscape'],
+    baseRate: 850,
+  },
   'full-project': {
     label: 'Full Project',
     description: 'Complete construction and interiors',
@@ -67,6 +79,12 @@ export const PROJECT_TYPES = {
     description: 'Everything including outdoor spaces',
     excludes: [],
     baseRate: 850,
+  },
+  'renovation': {
+    label: 'Renovation',
+    description: 'Renovation and refurbishment of existing spaces',
+    excludes: ['civilQuality', 'buildingEnvelope'],
+    baseRate: 600,
   },
 };
 
@@ -178,7 +196,7 @@ export const EstimatorProvider: React.FC<{ children: ReactNode }> = ({ children 
   const [step, setStep] = useState(1);
   const [estimate, setEstimate] = useState<ProjectEstimate>(initialEstimate);
   const [isCalculating, setIsCalculating] = useState(false);
-  const totalSteps = 3;
+  const totalSteps = 5;
 
   const updateEstimate = (field: keyof ProjectEstimate, value: any) => {
     setEstimate(prev => ({ ...prev, [field]: value }));
