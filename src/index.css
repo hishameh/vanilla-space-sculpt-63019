@@ -1,10 +1,7 @@
-/* Import Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Heebo:wght@400;600&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Lobster+Two:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;500;600;700;800&display=swap');
-@import url('https://fonts.googleapis.com/css?family=Russo+One&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap');
-@import url('https://fonts.googleapis.com/css?family=Raleway:900&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-/* Custom font faces */
 @font-face {
   font-family: 'The Seasons Light';
   src: url('/fonts/the-seasons-light.woff2') format('woff2');
@@ -28,12 +25,6 @@
   font-weight: normal;
 }
 
-/* Tailwind directives */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-/* Base styles */
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -64,6 +55,7 @@
     --sidebar-accent-foreground: 0 0% 98%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 142.1 76.2% 36.3%;
+    
     --fg: #17181c;
     --shade1: #727274;
     --shade2: #cccdd1;
@@ -101,6 +93,7 @@
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 240 5.9% 90%;
     --sidebar-ring: 240 5.9% 10%;
+    
     --fg: #e3e4e8;
     --shade1: #23252a;
     --shade2: #3e424c;
@@ -113,136 +106,9 @@
   * {
     border-color: hsl(var(--border));
   }
-  
   body {
     @apply bg-[#f0ede8] text-vs font-space-grotesk;
     font-feature-settings: "rlig" 1, "calt" 1;
+    font-family: 'Space Grotesk', 'Syne', 'Heebo', 'Poppins', sans-serif;
   }
-}
-
-/* Additional custom styles */
-.cursor {
-  position: fixed;
-  width: 20px;
-  height: 20px;
-  border: 2px solid #4f090c;
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 9999;
-  transition: transform 0.1s ease;
-}
-
-.cursor.active {
-  transform: scale(0.8);
-}
-
-/* Services scroll animation */
-.services-scroll {
-  overflow: hidden;
-}
-
-.services-container {
-  display: inline-flex;
-  animation: scroll 30s linear infinite;
-}
-
-@keyframes scroll {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-50%);
-  }
-}
-
-/* Loading screen */
-.lds-ripple {
-  display: inline-block;
-  position: relative;
-  width: 80px;
-  height: 80px;
-}
-
-.lds-ripple div {
-  position: absolute;
-  border: 4px solid #4f090c;
-  opacity: 1;
-  border-radius: 50%;
-  animation: lds-ripple 1s cubic-bezier(0, 0.2, 0.8, 1) infinite;
-}
-
-.lds-ripple div:nth-child(2) {
-  animation-delay: -0.5s;
-}
-
-@keyframes lds-ripple {
-  0% {
-    top: 36px;
-    left: 36px;
-    width: 0;
-    height: 0;
-    opacity: 0;
-  }
-  4.9% {
-    top: 36px;
-    left: 36px;
-    width: 0;
-    height: 0;
-    opacity: 0;
-  }
-  5% {
-    top: 36px;
-    left: 36px;
-    width: 0;
-    height: 0;
-    opacity: 1;
-  }
-  100% {
-    top: 0px;
-    left: 0px;
-    width: 72px;
-    height: 72px;
-    opacity: 0;
-  }
-}
-
-/* Project card animations */
-@keyframes slide-up {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-slide-up {
-  animation: slide-up 0.5s ease-out forwards;
-}
-
-/* Glass card effect */
-.glass-card {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-}
-
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #4f090c;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #3a0609;
 }
